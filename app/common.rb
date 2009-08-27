@@ -66,7 +66,7 @@ module Tasks
             :block => block,
         }
         
-        @_tasks_[:name] = task
+        @_tasks_[options[:name]] = task
     end
 
     def check_tasks
@@ -86,13 +86,13 @@ module Tasks
     def task_exists?(name)
         return if !@_tasks_
 
-        @_tasks_[:name]
+        @_tasks_[name]
     end
 
     def task_time_remaining(name)
         return if !@_tasks_
 
-        task = @_tasks_[:name]
+        task = @_tasks_[name]
         current_time = Time.now.to_f
 
         raise "no such task" if !task
