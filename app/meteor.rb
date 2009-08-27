@@ -53,14 +53,9 @@ class Meteor
         end
 
         if @playgame.map.solid?(x, y) then
-            
-            case @roid_type
-            when 0
-                @playgame.map.blast(x, y, @blast_size)
-            when 1
-                @playgame.map.blast(x, y, @blast_size)
-            end
-
+                      
+            @playgame.map.blast(x, y, @blast_size)
+          
             @collide_sound.play(1.0)
             
             5.times {
@@ -74,12 +69,8 @@ class Meteor
             
             false
         elsif intersect?(@playgame.lander) then
-            case @roid_type
-            when 0
-                @playgame.lander.meteor_hit(self, @blast_damage)
-            when 1
-                @playgame.lander.meteor_hit(self, @blast_damage)
-            end
+     
+            @playgame.lander.meteor_hit(self, @blast_damage)         
                 
             false
 
