@@ -110,7 +110,7 @@ class Lander
         x = rand(@image.width - chunk_size)
         y = rand(@image.height - chunk_size)
 
-        chunk = [x, y, x + chunk_size, chunk_size]
+        chunk = [x, y, x + chunk_size, y + chunk_size]
 
         # damage the craft
         @image.splice @image, x - 4 + rand(7), y - 4 + rand(7),
