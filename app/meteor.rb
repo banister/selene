@@ -4,8 +4,6 @@ class Meteor
     
     attr_reader :vx, :vy, :x, :y
     
-    CUR_DIREC = File.dirname(__FILE__)   
-
     def initialize(window, playgame, x, y, image = nil)
         @x, @y = x, y
         @vx = 4 * rand - 2
@@ -15,31 +13,13 @@ class Meteor
         @window = window
         @playgame = playgame
 
-        @@roid_textures ||= [Gosu::Image.new(window, "#{CUR_DIREC}/media/roid.png"), Gosu::Image.new(window, "#{CUR_DIREC}/media/roidbig.png")]
-
-        @collide_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/collide.ogg")
-
-        # TODO: LOOK AT IT!@!!!
-        if !image then
-            selector = @playgame.level / 100
-            selector = 0.4 if selector > 0.4
-            
-            @roid_type = rand() < (0.9 - selector) ? 0 : 1
-            @image = @@roid_textures[@roid_type]
-        else
-            @image = image
-            @roid_type = 0
-        end
-
-        case @roid_type
-        when 0
-            @blast_size = 30
-            @blast_damage = 10
-        when 1
-            @blast_size = 50
-            @blast_damage = 50
-        end
+        @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
         
+        @image = image
+
+        config
+#        raise "a valid image was not received" if @@image
+
         set_bounding_box(@image.width, @image.height)
     end
 
@@ -66,17 +46,15 @@ class Meteor
             false
         elsif @playgame.lander.shield_intersect?(self) then
             @playgame.lander.shield_hit(self)
+
             
             false
         elsif intersect?(@playgame.lander) then
-     
-            @playgame.lander.meteor_hit(self, @blast_damage)         
-                
-            false
+            @playgame.lander.meteor_hit(self, @blast_damage)
 
-        # delete meteor if it careens off screen
-        elsif 
-            @x > 0 && @x < Map::WIDTH - 1 && @y > -60 && @y < Map::HEIGHT - 1
+            false
+        elsif @x < 0 || @x > Map::WIDTH - 1 || @y < -60 || @y > Map::HEIGHT - 1
+            false
         else
             true
         end
@@ -85,5 +63,27 @@ class Meteor
     def draw
         @image.draw_rot(@x, @y, 1, @theta)
     end
-    
+end
+
+class Wreckage < Meteor
+    def config
+        @blast_size = 20
+        @blast_damage = 10
+    end
+end
+
+class SmallMeteor < Meteor
+    def config
+        @blast_size = 30
+        @blast_damage = 10
+        @image ||= Gosu::Image.new(@window, "#{MEDIA}/roid.png")
+    end
+end
+
+class LargeMeteor < Meteor
+    def config
+        @blast_size = 70
+        @blast_damge = 50
+        @image ||= Gosu::Image.new(@window, "#{MEDIA}/roidbig.png")
+    end
 end

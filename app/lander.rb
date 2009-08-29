@@ -7,11 +7,9 @@ class Lander
     attr_reader :fuel, :width, :height, :vel, :crashed, :landed, :da, :x, :y
     attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
     
-    CUR_DIREC = File.dirname(__FILE__)
-
     CRASH_VELOCITY = 0.6
     FUEL = 200
-    HEALTH = 100
+    HEALTH = 10000
     SHIELD_RADIUS = 180
     SHIELD_TIMEOUT = 60
     MAX_CAREEN_ANGLE = 60
@@ -36,15 +34,15 @@ class Lander
         @landed = false
         @crashed = false
 
-        @scream_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/scream.ogg")
-        @jet_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/jet3.ogg")
-        @collide_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/collide.ogg")
-        @fuel_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/lowfuel.ogg")
-        @shield_deflect_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/shield.ogg")
+        @scream_sound = Gosu::Sample.new(@window, "#{MEDIA}/scream.ogg")
+        @jet_sound = Gosu::Sample.new(@window, "#{MEDIA}/jet3.ogg")
+        @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
+        @fuel_sound = Gosu::Sample.new(@window, "#{MEDIA}/lowfuel.ogg")
+        @shield_deflect_sound = Gosu::Sample.new(@window, "#{MEDIA}/shield.ogg")
 
         @jet_color = NORMAL_JET_COLOR
 
-        @image = Gosu::Image.new(@window, "#{CUR_DIREC}/media/lander.png")
+        @image = Gosu::Image.new(@window, "#{MEDIA}/lander.png")
 
         set_bounding_box(@image.width, @image.height)
 
@@ -71,10 +69,13 @@ class Lander
         
         @x += @vx
         @y += @vy
+        @vy += PlayGame::Gravity
 
-        @vx += PlayGame::Wind[0]
-        @vy += PlayGame::Gravity + PlayGame::Wind[1]
-
+        if !@has_precision_controls
+            @vx += PlayGame::Wind[0]
+            @vy += PlayGame::Wind[1]
+        end
+        
         if @playgame.map.solid?(@x - @width / 2, @y + @height / 2) ||
                 @playgame.map.solid?(@x + @width / 2, @y + @height / 2) then
             if vel > @crash_velocity then
@@ -89,6 +90,7 @@ class Lander
             @scream_sound.play(1.0)
         end
 
+#        @theta += rand(HEALTH - @health) - (HEALTH - @health) / 2
         @theta -= DELTA_THETA / 2 if @theta > 0
         @theta += DELTA_THETA / 2 if @theta < 0
     end
@@ -123,12 +125,21 @@ class Lander
             c1
         }
 
+        debris = TexPlay::create_blank_image(@window, chunk_size, chunk_size)
+        debris.splice @image, 0, 0, :crop => chunk
+
         @playgame.objects <<  Particle.new(@window, @x, @y)
+
+        if(!meteor.is_a?(Wreckage))
+            @playgame.objects << Wreckage.new(@window, @playgame,
+                                              @x + rand(@image.width) - @image.width / 2,
+                                              @y + @image.height, debris)
+        end
     end
 
     def got_shield
         @has_shield = true
-
+        
         new_task(:wait => SHIELD_TIMEOUT, :name => :shield_timeout) { @has_shield = false }
     end
 
@@ -180,31 +191,21 @@ class Lander
         @fuel_sound.play(0.05) if @fuel <= 20
         @fuel -= 1
 
-        if dvx.sgn == 1
-            @playgame.objects << Particle.new(@window, @x - 25 , @y - 16,
+        if dvx.sgn != 0
+            sgn = dvx.sgn
+            @playgame.objects << Particle.new(@window, @x + 25 * sgn , @y - 16,
                                               :direction => :left,
                                               :scale => 0.1,
                                               :color => @jet_color
                                               )
-            @theta += DELTA_THETA if @theta < MAX_CAREEN_ANGLE
-
-        elsif dvx.sgn == -1
-            @playgame.objects << Particle.new(@window, @x + 25 , @y - 16,
-                                              :direction => :right,
-                                              :scale => 0.1,
-                                              :color => @jet_color
-                                              )
-            @theta -= DELTA_THETA if @theta > -MAX_CAREEN_ANGLE
-
-        elsif dvy.sgn == -1
-            @playgame.objects << Particle.new(@window, @x , @y + 20,
+            if @theta > -MAX_CAREEN_ANGLE && @theta < MAX_CAREEN_ANGLE
+                @theta += DELTA_THETA * sgn
+            end
+            
+        elsif dvy.sgn != 0
+            sgn = dvy.sgn
+            @playgame.objects << Particle.new(@window, @x , @y + 20 * sgn,
                                               :direction => :down,
-                                              :scale => 0.1,
-                                              :color => @jet_color
-                                              )
-        elsif dvy.sgn == 1
-            @playgame.objects << Particle.new(@window, @x , @y - 20,
-                                              :direction => :up,
                                               :scale => 0.1,
                                               :color => @jet_color
                                               )
@@ -229,7 +230,5 @@ class Lander
     
     def draw
         @image.draw_rot @x, @y, 1, @theta
-
-#        @shield_image.draw_rot(@x, @y, 1, 0) if @has_shield
     end
 end

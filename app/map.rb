@@ -2,21 +2,18 @@
 class Map
     WIDTH = 1022
     HEIGHT = 768
-    CUR_DIREC = File.dirname(__FILE__)      
     
     def initialize(window)
         @window = window
 
         # background image
-        @@nebula_textures ||= [Gosu::Image.new(@window, "#{CUR_DIREC}/media/witchhead.png"),
-                               Gosu::Image.new(@window, "#{CUR_DIREC}/media/horsehead.png"),
+        @@nebula_textures ||= [Gosu::Image.new(@window, "#{MEDIA}/witchhead.png"),
+                               Gosu::Image.new(@window, "#{MEDIA}/horsehead.png"),
                               ]
         @nebula = @@nebula_textures.random
         @nebula_theta = 0
 
-        puts "in Map constructor"
         reset
-        puts "exiting Map constructor"
     end
 
     def reset
@@ -28,12 +25,12 @@ class Map
         :fill => true
 
         # textures to fill the landscae
-        @@land_textures ||= [Gosu::Image.new(@window, "#{CUR_DIREC}/media/crack2.png"),
-                          Gosu::Image.new(@window, "#{CUR_DIREC}/media/snow.png"),
-                          Gosu::Image.new(@window, "#{CUR_DIREC}/media/mud1.png"),
-                          Gosu::Image.new(@window, "#{CUR_DIREC}/media/crack3.png"),
-                          Gosu::Image.new(@window, "#{CUR_DIREC}/media/sand1.png"),
-                          Gosu::Image.new(@window, "#{CUR_DIREC}/media/rough1.png"),
+        @@land_textures ||= [Gosu::Image.new(@window, "#{MEDIA}/crack2.png"),
+                          Gosu::Image.new(@window, "#{MEDIA}/snow.png"),
+                          Gosu::Image.new(@window, "#{MEDIA}/mud1.png"),
+                          Gosu::Image.new(@window, "#{MEDIA}/crack3.png"),
+                          Gosu::Image.new(@window, "#{MEDIA}/sand1.png"),
+                          Gosu::Image.new(@window, "#{MEDIA}/rough1.png"),
                          ]
 
         @moonscape = @@land_textures.random
@@ -52,11 +49,9 @@ class Map
         }
 
         mag = rand(50) + 10
-        mag2 = rand(50) + 10
         rough = 2 + rand(20)
         spike = 2 + rand(14)
         period = 2 * rand + 0.2
-        period2 = 2 * rand + 0.2
         @@image.move_to(points.first.x, points.first.y)
 
         # plain beziers are boring, so let's augment it with a randomized sine wave
@@ -93,12 +88,7 @@ class Map
     def blast(x, y, radius)
 
         # draw a shadow
-        @@image.circle x, y, radius + 10,  :fill => true, :color_control => proc { |c|
-            c[0] /= 1.5
-            c[1] /= 1.5
-            c[2] /= 1.5
-            c
-        }
+        @@image.circle x, y, radius + 10,  :fill => true, :shadow => true
         @@image.circle x, y, radius, :color => :alpha, :fill => true
     end
 end

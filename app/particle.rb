@@ -1,10 +1,8 @@
 class Particle
 
-    CUR_DIREC = File.dirname(__FILE__)   
-
     def initialize(window, x, y, options={})
         # All Particle instances use the same image
-        @@image ||= Gosu::Image.new(window, "#{CUR_DIREC}/media/smoke.png", false)
+        @@image ||= Gosu::Image.new(window, "#{MEDIA}/smoke.png", false)
         
         @x, @y = x, y
         @options = {

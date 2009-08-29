@@ -3,8 +3,6 @@ class PowerUp
     include BoundingBox
     include Tasks
     
-    CUR_DIREC = File.dirname(__FILE__)   
-
     TIMEOUT = 15
 
     def initialize(window, playgame, x, y)
@@ -13,7 +11,7 @@ class PowerUp
         @playgame = playgame
         @window = window
 
-        @pickup_sound ||= Gosu::Sample.new(@window, "#{CUR_DIREC}/media/powerup.ogg")
+        @pickup_sound ||= Gosu::Sample.new(@window, "#{MEDIA}/powerup.ogg")
         @pickup_sound_vol = 1.0
         
         # define configure method in subclasses
@@ -67,7 +65,7 @@ end
 ## powerups ##
 class RocketJuice < PowerUp
     def configure
-        set_image Gosu::Image.new(@window, "#{CUR_DIREC}/media/rockjuice.png")
+        set_image Gosu::Image.new(@window, "#{MEDIA}/rockjuice.png")
 
         action { @playgame.lander.refuel }
     end
@@ -75,7 +73,7 @@ end
 
 class QuantumEngine < PowerUp
     def configure
-        set_image Gosu::Image.new(@window, "#{CUR_DIREC}/media/quantum.png")
+        set_image Gosu::Image.new(@window, "#{MEDIA}/quantum.png")
 
         action { @playgame.lander.got_quantum_engine }
     end
@@ -95,15 +93,15 @@ end
 
 class Shield < PowerUp
     def configure
-        set_image Gosu::Image.new(@window, "#{CUR_DIREC}/media/shield.png")
+        set_image Gosu::Image.new(@window, "#{MEDIA}/shield.png")
         action { @playgame.lander.got_shield }
     end
 end
 
 class Freeze < PowerUp
     def configure
-        set_image Gosu::Image.new(@window, "#{CUR_DIREC}/media/freeze.png")
-        set_pickup_sound Gosu::Sample.new(@window, "#{CUR_DIREC}/media/freeze.ogg")
+        set_image Gosu::Image.new(@window, "#{MEDIA}/freeze.png")
+        set_pickup_sound Gosu::Sample.new(@window, "#{MEDIA}/freeze.ogg")
         action { @playgame.freeze_movement }
     end
 end

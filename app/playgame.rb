@@ -23,10 +23,10 @@ class PlayGame
         @map = Map.new(@window)
         @font = Gosu::Font.new(@window, Gosu::default_font_name, 20)
 
-        @triumph_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/triumph.ogg")
-        @crash_sound = Gosu::Sample.new(@window, "#{CUR_DIREC}/media/smash.ogg")
+        @triumph_sound = Gosu::Sample.new(@window, "#{MEDIA}/triumph.ogg")
+        @crash_sound = Gosu::Sample.new(@window, "#{MEDIA}/smash.ogg")
 
-        @meteor_frequency = 0.008 + @level / 1000.0
+        @meteor_frequency = 0.08 + @level / 1000.0
 
         @refuel_frequency = 0.001 + @level / 50000.0
         
@@ -37,6 +37,7 @@ class PlayGame
 
         if @level > 20 then
             factor = 1 + 0.2 * (@level - 20)
+
             factor = 8 if factor > 8
             puts "factor #{factor}"
             
@@ -49,6 +50,7 @@ class PlayGame
 
         @objects = []
         @lander = Lander.new(@window, self, 600, 100)
+        @difficulty = IncrementalDifficulty.new(self)
     end
 
     def freeze_movement
@@ -65,8 +67,8 @@ class PlayGame
     def update
         check_tasks
  
-        if rand < @meteor_frequency && !is_movement_frozen? then
-            @objects << Meteor.new(@window, self, 1024 * rand, -20)
+        if rand < @difficulty.meteor_frequency && !is_movement_frozen? then
+            @objects << SmallMeteor.new(@window, self, 1024 * rand, -20)
         end
 
         if rand < @refuel_frequency then

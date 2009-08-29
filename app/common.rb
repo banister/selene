@@ -1,3 +1,5 @@
+MEDIA = File.dirname(__FILE__) + '/media'
+
 Point = Struct.new(:x, :y)
 
 ## monkey patches to core classes 

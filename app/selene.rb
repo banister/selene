@@ -6,6 +6,7 @@ require 'powerups'
 require 'meteor'
 require 'lander'
 require 'particle'
+require 'difficulty'
 require 'playgame'
 require 'getready'
 
@@ -36,8 +37,11 @@ class W < Gosu::Window
         # 'S' is the suicide key, restarts level
         elsif @state.level_fail? || button_down?(Gosu::KbS)
             @state = GetReady.new(self, @level, :failure)
+
+        elsif button_down?(Gosu::KbEscape)
+            exit
         end
-        
+
         @state.update
         @frame_counter.register_tick
     end
