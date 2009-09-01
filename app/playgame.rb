@@ -1,17 +1,11 @@
 class PlayGame
     include Tasks
     
-    attr_reader :map, :lander, :level, :objects
-    
+    attr_reader :map, :lander, :level, :objects, :wind, :difficulty
     
     CUR_DIREC = File.dirname(__FILE__)   
-
     Gravity = 0.002
-
     Wind_Velocity = 0.005
-
-    Wind = [0, 0]
-
     FREEZE_MOVEMENT_TIMEOUT = 20
 
     def initialize(window, level)
@@ -26,31 +20,26 @@ class PlayGame
         @triumph_sound = Gosu::Sample.new(@window, "#{MEDIA}/triumph.ogg")
         @crash_sound = Gosu::Sample.new(@window, "#{MEDIA}/smash.ogg")
 
-        @meteor_frequency = 0.08 + @level / 1000.0
+        @wind = []
 
-        @refuel_frequency = 0.001 + @level / 50000.0
-        
-        Wind[0] = rand * Wind_Velocity - Wind_Velocity / 2
-        Wind[1] = rand * Wind_Velocity - Wind_Velocity / 2
-
-        puts "wind before factor #{Wind.inspect}"
+        @wind[0] = rand * Wind_Velocity - Wind_Velocity / 2
+        @wind[1] = rand * Wind_Velocity - Wind_Velocity / 2
 
         if @level > 20 then
             factor = 1 + 0.2 * (@level - 20)
 
             factor = 8 if factor > 8
-            puts "factor #{factor}"
             
-            Wind[0] *= factor
-            Wind[1] *= factor
+            @wind[0] *= factor
+            @wind[1] *= factor
         end
-
-        puts "wind after factor #{Wind.inspect}"
-
 
         @objects = []
         @lander = Lander.new(@window, self, 600, 100)
-        @difficulty = IncrementalDifficulty.new(self)
+
+        @difficulty = Difficulty.new(self)
+        @meteor_manager = MeteorManager.new(@window, self)
+        @powerup_manager = PowerUpManager.new(@window, self)
     end
 
     def freeze_movement
@@ -67,25 +56,8 @@ class PlayGame
     def update
         check_tasks
  
-        if rand < @difficulty.meteor_frequency && !is_movement_frozen? then
-            @objects << SmallMeteor.new(@window, self, 1024 * rand, -20)
-        end
-
-        if rand < @refuel_frequency then
-            @objects << RocketJuice.new(@window, self, 1024 * rand, rand(400))
-        end
-
-        if rand < @refuel_frequency then
-            @objects << QuantumEngine.new(@window, self, 1024 * rand, rand(400))
-        end
-
-        if rand < @refuel_frequency then
-            @objects << Shield.new(@window, self, 1024 * rand, rand(400))
-        end
-
-        if rand < @refuel_frequency then
-            @objects << Freeze.new(@window, self, 1024 * rand, rand(400))
-        end
+        @meteor_manager.update
+        @powerup_manager.update
 
         @lander.update
         @objects.reject! { |m| m.update == false }
@@ -111,8 +83,8 @@ class PlayGame
                    1.0, 1.0, 0xffffff00)
         @font.draw("crash velocity: #{@lander.crash_velocity.round_to(3) * 10}", 100, 30, 3,
                    1.0, 1.0, 0xffffff00)
-        @font.draw("wind y: #{Wind[1].round_to(3) * 10}", 100, 50, 3, 1.0, 1.0, 0xffffff00)
-        @font.draw("wind x: #{Wind[0].round_to(3) * 10}", 100, 70, 3, 1.0, 1.0, 0xffffff00)
+        @font.draw("wind y: #{@wind[1].round_to(3) * 10}", 100, 50, 3, 1.0, 1.0, 0xffffff00)
+        @font.draw("wind x: #{@wind[0].round_to(3) * 10}", 100, 70, 3, 1.0, 1.0, 0xffffff00)
         
         @font.draw("Precision Controls: #{@lander.da.round_to(5) * 10}", 100, 90, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_precision_controls
         @font.draw("Shield: #{@lander.shield_remaining.round_to(3)}", 100, 110, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_shield

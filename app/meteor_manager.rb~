@@ -1,0 +1,14 @@
+class MeteorManager
+    def initialize(playgame)
+        @playgame = playgame
+        @difficulty = @playgame.difficulty
+    end
+    
+    def update
+        if rand < @difficulty.meteor_factor
+            big_meteor_factor = Difficulty::FPS_FACTOR / 50 +
+                @playgame.level * FPS_FACTOR / 100
+            
+        end
+    end
+end

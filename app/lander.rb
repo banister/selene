@@ -9,7 +9,7 @@ class Lander
     
     CRASH_VELOCITY = 0.6
     FUEL = 200
-    HEALTH = 10000
+    HEALTH = 100
     SHIELD_RADIUS = 180
     SHIELD_TIMEOUT = 60
     MAX_CAREEN_ANGLE = 60
@@ -72,8 +72,8 @@ class Lander
         @vy += PlayGame::Gravity
 
         if !@has_precision_controls
-            @vx += PlayGame::Wind[0]
-            @vy += PlayGame::Wind[1]
+            @vx += @playgame.wind[0]
+            @vy += @playgame.wind[1]
         end
         
         if @playgame.map.solid?(@x - @width / 2, @y + @height / 2) ||
@@ -90,7 +90,6 @@ class Lander
             @scream_sound.play(1.0)
         end
 
-#        @theta += rand(HEALTH - @health) - (HEALTH - @health) / 2
         @theta -= DELTA_THETA / 2 if @theta > 0
         @theta += DELTA_THETA / 2 if @theta < 0
     end
@@ -128,13 +127,17 @@ class Lander
         debris = TexPlay::create_blank_image(@window, chunk_size, chunk_size)
         debris.splice @image, 0, 0, :crop => chunk
 
-        @playgame.objects <<  Particle.new(@window, @x, @y)
+        @playgame.objects <<  Particle.new(@window, @x, @y) << Particle.new(@window, @x, @y,
+                                                                            :image => debris,
+                                                                            :direction => :random,
+                                                                            :rotate => true,
+                                                                            :lifespan => 1)
 
-        if(!meteor.is_a?(Wreckage))
-            @playgame.objects << Wreckage.new(@window, @playgame,
-                                              @x + rand(@image.width) - @image.width / 2,
-                                              @y + @image.height, debris)
-        end
+#         if(!meteor.is_a?(Wreckage))
+#             @playgame.objects << Wreckage.new(@window, @playgame,
+#                                               @x + rand(@image.width) - @image.width / 2,
+#                                               @y + @image.height, debris)
+#         end
     end
 
     def got_shield
@@ -183,13 +186,13 @@ class Lander
         
         @jet_sound.play(0.04)
 
-        deviance = (HEALTH - @health) / HEALTH.to_f
+        deviance = (1 - (@health / HEALTH.to_f)) / 4.0
 
         @vx += dvx + deviance / 3 * rand
         @vy += dvy + deviance / 3 * rand
         
         @fuel_sound.play(0.05) if @fuel <= 20
-        @fuel -= 1
+        @fuel -= 1 * (@da * 10)
 
         if dvx.sgn != 0
             sgn = dvx.sgn
@@ -229,6 +232,9 @@ class Lander
     end
     
     def draw
-        @image.draw_rot @x, @y, 1, @theta
+        # shake the craft when damaged
+        shake = (1 - @health.to_f / HEALTH) * 20
+        
+        @image.draw_rot @x, @y, 1, @theta + rand(shake) - shake / 2
     end
 end

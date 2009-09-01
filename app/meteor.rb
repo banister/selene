@@ -18,7 +18,6 @@ class Meteor
         @image = image
 
         config
-#        raise "a valid image was not received" if @@image
 
         set_bounding_box(@image.width, @image.height)
     end
@@ -83,7 +82,7 @@ end
 class LargeMeteor < Meteor
     def config
         @blast_size = 70
-        @blast_damge = 50
+        @blast_damage = 50
         @image ||= Gosu::Image.new(@window, "#{MEDIA}/roidbig.png")
     end
 end
