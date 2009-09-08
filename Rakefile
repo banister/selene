@@ -7,7 +7,7 @@ CLOBBER.include("**/*~", "**/*#*", "**/*.log")
 
 task :default => [:texplay]
 
-TEXPLAY = "/home/john/ruby/myextensions/texplay2"
+TEXPLAY = "/home/john/ruby/myextensions/texplay2/lib"
 desc "update selene's version of texplay"
 task :texplay => ["lib/texplay.rb", "lib/texplay-contrib.rb", "lib/ctexplay.#{$dlext}"] do
     puts "...done!"

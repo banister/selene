@@ -8,7 +8,7 @@ class MeteorManager
     def update
         if rand < @difficulty.meteor_factor
             big_meteor_factor = 0.1 +
-                @playgame.level / 200.0
+                @playgame.level / 100.0
 
             big_meteor_factor = 0.6 if big_meteor_factor > 0.6
             

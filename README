@@ -1,0 +1,15 @@
+Selene
+======
+
+* Version 0.1.0
+
+Installation Instructions:
+=========================
+
+* gem install texplay
+
+To Run:
+======
+
+* ruby selene.rb
+
