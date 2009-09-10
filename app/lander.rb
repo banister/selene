@@ -33,14 +33,10 @@ class Lander
 
         @landed = false
         @crashed = false
-
-        @scream_sound = Gosu::Sample.new(@window, "#{MEDIA}/scream.ogg")
-        @jet_sound = Gosu::Sample.new(@window, "#{MEDIA}/jet3.ogg")
-        @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
-        @fuel_sound = Gosu::Sample.new(@window, "#{MEDIA}/lowfuel.ogg")
-        @shield_deflect_sound = Gosu::Sample.new(@window, "#{MEDIA}/shield.ogg")
-
+ 
         @jet_color = NORMAL_JET_COLOR
+
+        init_sounds
 
         @image = Gosu::Image.new(@window, "#{MEDIA}/lander.png")
 
@@ -54,6 +50,14 @@ class Lander
         @height = @image.height
         @width = @image.width
         @theta = 0
+    end
+
+    def init_sounds
+        @scream_sound = Gosu::Sample.new(@window, "#{MEDIA}/scream.ogg")
+        @jet_sound = Gosu::Sample.new(@window, "#{MEDIA}/jet3.ogg")
+        @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
+        @fuel_sound = Gosu::Sample.new(@window, "#{MEDIA}/lowfuel.ogg")
+        @shield_deflect_sound = Gosu::Sample.new(@window, "#{MEDIA}/shield.ogg")
     end
 
     def handle_controls
@@ -196,8 +200,9 @@ class Lander
 
         if dvx.sgn != 0
             sgn = dvx.sgn
-            @playgame.objects << Particle.new(@window, @x + 25 * sgn , @y - 16,
-                                              :direction => :left,
+            direc = sgn > 0 ? :left : :right
+            @playgame.objects << Particle.new(@window, @x + 25 * -sgn , @y - 16,
+                                              :direction => direc,
                                               :scale => 0.1,
                                               :color => @jet_color
                                               )
@@ -207,8 +212,9 @@ class Lander
             
         elsif dvy.sgn != 0
             sgn = dvy.sgn
-            @playgame.objects << Particle.new(@window, @x , @y + 20 * sgn,
-                                              :direction => :down,
+            direc = sgn > 0 ? :up : :down
+            @playgame.objects << Particle.new(@window, @x , @y + 20 * -sgn,
+                                              :direction => direc,
                                               :scale => 0.1,
                                               :color => @jet_color
                                               )
