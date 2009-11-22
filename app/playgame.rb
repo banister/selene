@@ -1,9 +1,9 @@
 class PlayGame
     include Tasks
     
-    attr_reader :map, :lander, :level, :objects, :wind, :difficulty
+    attr_accessor :objects
+    attr_reader :map, :lander, :level, :wind, :difficulty
     
-    CUR_DIREC = File.dirname(__FILE__)   
     Gravity = 0.002
     Wind_Velocity = 0.005
     FREEZE_MOVEMENT_TIMEOUT = 20
@@ -40,13 +40,24 @@ class PlayGame
         @difficulty = Difficulty.new(self)
         @meteor_manager = MeteorManager.new(@window, self)
         @powerup_manager = PowerUpManager.new(@window, self)
+        @platform_manager = PlatformManager.new(@window, self)
+
+        place_platforms
+    end
+
+    def place_platforms
+        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 0
+        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 2
+        @platform_manager.screen_is(0)
     end
 
     def freeze_movement
         @freeze_movement = true
 
         # unfreeze movement in FREEZE_MOVEMENT_TIMEOUT seconds
-        new_task(:wait => FREEZE_MOVEMENT_TIMEOUT, :name => :freeze_timeout) { @freeze_movement = false}
+        new_task(:wait => FREEZE_MOVEMENT_TIMEOUT, :name => :freeze_timeout) {
+            @freeze_movement = false
+        }
     end
 
     def is_movement_frozen?
@@ -58,13 +69,41 @@ class PlayGame
  
         @meteor_manager.update
         @powerup_manager.update
-
+        @platform_manager.update
         @lander.update
+
         @objects.reject! { |m| m.update == false }
+        
+        case @lander.screen_at
+        when :left
+            @map.change_screen_to(:left)
+            @lander.x = 1000
+            @meteor_manager.move_meteors_by(1022, 0)
+            @platform_manager.screen_is(@map.current_screen_index)
+        when :right
+            @map.change_screen_to(:right)
+            @lander.x = 10
+            @meteor_manager.move_meteors_by(-1022, 0)
+            @platform_manager.screen_is(@map.current_screen_index)
+        when :top
+            @map.change_screen_to(:top)
+            @lander.y = 700
+            @meteor_manager.reset.add_and_randomize(10)
+            @meteor_manager.frequency *= 3
+            @powerup_manager.start
+            @platform_manager.screen_is(nil)
+        when :bottom
+            @map.change_screen_to(:bottom)
+            @lander.y = 10
+            @meteor_manager.move_meteors_by(0, -780)
+            @meteor_manager.frequency /= 3
+            @powerup_manager.reset.stop
+            @platform_manager.screen_is(@map.current_screen_index)
+        end
 
         if @lander.landed then
-            @triumph_sound.play(1.0)
-            @level_complete = true
+ ###           @triumph_sound.play(1.0)
+#            @level_complete = true
         elsif @lander.crashed then
             @crash_sound.play(1.0)
             @level_fail = true
@@ -75,6 +114,9 @@ class PlayGame
         @map.draw
         @lander.draw
         @objects.each { |m| m.draw }
+
+        @font.draw("screen: #{@map.current_screen_index}", 340, 10, 3, 1.0, 1.0,
+                   @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)
 
         @font.draw("fuel: #{@lander.fuel}", 840, 10, 3, 1.0, 1.0,
                    @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)

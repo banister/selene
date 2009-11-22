@@ -6,11 +6,14 @@ require 'powerups'
 require 'powerup_manager'
 require 'meteor'
 require 'meteor_manager'
+require 'platform'
+require 'platform_manager'
 require 'lander'
 require 'particle'
 require 'difficulty'
 require 'playgame'
 require 'getready'
+
 
 class W < Gosu::Window
     def initialize
@@ -56,5 +59,7 @@ class W < Gosu::Window
     end
 end
 
-W.new.show
+Win = W.new
+Win.show
+
         

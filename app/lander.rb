@@ -4,12 +4,13 @@ class Lander
     include BoundingBox
     include Tasks
     
-    attr_reader :fuel, :width, :height, :vel, :crashed, :landed, :da, :x, :y
+    attr_accessor :landed
+    attr_reader :fuel, :width, :height, :vel, :crashed, :da, :x, :y
     attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
     
     CRASH_VELOCITY = 0.6
-    FUEL = 200
-    HEALTH = 100
+    FUEL = 2000000
+    HEALTH = 100000
     SHIELD_RADIUS = 180
     SHIELD_TIMEOUT = 60
     MAX_CAREEN_ANGLE = 60
@@ -31,7 +32,7 @@ class Lander
         @fuel = 40 if @fuel < 40
         @crash_velocity = 0.17 if @crash_velocity < 0.17
 
-        @landed = false
+        self.landed = false
         @crashed = false
  
         @jet_color = NORMAL_JET_COLOR
@@ -67,31 +68,63 @@ class Lander
         move_down if @window.button_down? Gosu::KbDown
     end
 
+    def screen_at
+        case 
+        when @x < -30
+            :left
+        when @x > 1070
+            :right
+        when @y > 788
+            :bottom
+        when @y < -30
+            :top
+        else
+            :current
+        end
+    end
+
+    def left_foot
+        [@x + @width / 2, @y + @height / 2]                
+    end
+
+    def right_foot
+        [@x - @width / 2, @y + @height / 2]        
+    end
+
     def update
         handle_controls
         check_tasks
-        
-        @x += @vx
-        @y += @vy
-        @vy += PlayGame::Gravity
 
-        if !@has_precision_controls
-            @vx += @playgame.wind[0]
-            @vy += @playgame.wind[1]
+        if touch_down?
+            if !self.landed
+                @vx = 0
+                @vy = 0
+            end
+            @vy = 0 if @vy >= 0
+            @vx = 0
+            @y += @vy
+            self.landed = true
+        else
+            @x += @vx
+            @y += @vy 
+            @vy += PlayGame::Gravity
+            
+            if !@has_precision_controls
+                @vx += @playgame.wind[0]
+                @vy += @playgame.wind[1]
+            end
+            self.landed = false
         end
         
-        if @playgame.map.solid?(@x - @width / 2, @y + @height / 2) ||
-                @playgame.map.solid?(@x + @width / 2, @y + @height / 2) then
+        if terrain_touch_down?
             if vel > @crash_velocity then
                 @crashed = true
-            else
-                @landed = true
             end
         elsif @health <= 0 then
             @crashed = true
-        elsif (@x > 1070 || @x < -30 || @y > 788) && @fuel <= 0 then
-            @crashed = true
-            @scream_sound.play(1.0)
+#         elsif (@x > 1070 || @x < -30 || @y > 788) && @fuel <= 0 then
+#             @crashed = true
+#             @scream_sound.play(1.0)
         end
 
         @theta -= DELTA_THETA / 2 if @theta > 0
@@ -101,6 +134,25 @@ class Lander
     # magnitude of velocity vector
     def vel
         Math::hypot(@vx, @vy)
+    end
+
+    def touch_down?
+        terrain_touch_down? || platform_touch_down?
+    end
+
+    def terrain_touch_down?
+        @playgame.map.solid?(*left_foot) &&
+            @playgame.map.solid?(*right_foot)
+    end
+
+    def platform_touch_down?
+        @playgame.objects.each { |platform|
+            if platform.is_a?(Platform)
+                return true if platform.solid?(*left_foot) &&
+                    platform.solid?(*right_foot)
+            end
+        }
+        false
     end
 
     def meteor_hit(meteor, damage)
@@ -131,17 +183,22 @@ class Lander
         debris = TexPlay::create_blank_image(@window, chunk_size, chunk_size)
         debris.splice @image, 0, 0, :crop => chunk
 
-        @playgame.objects <<  Particle.new(@window, @x, @y) << Particle.new(@window, @x, @y,
-                                                                            :image => debris,
-                                                                            :direction => :random,
-                                                                            :rotate => true,
-                                                                            :lifespan => 1)
+        @playgame.objects <<  Particle.new(@window, @x, @y)#  << Particle.new(@window, @x, @y,
+#                                                                             :image => debris,
+#                                                                             :direction => :random,
+#                                                                             :rotate => true,
+#                                                                             :lifespan => 1)
 
-#         if(!meteor.is_a?(Wreckage))
-#             @playgame.objects << Wreckage.new(@window, @playgame,
-#                                               @x + rand(@image.width) - @image.width / 2,
-#                                               @y + @image.height, debris)
-#         end
+        if(!meteor.is_a?(Wreckage))
+            start_dist = Math::hypot(@image.width / 2, @image.height / 2) + 2
+            angle = 2 * Math::PI * rand
+            dx = Math::cos(angle)
+            dy = Math::sin(angle)
+            
+            @playgame.objects << Wreckage.new(@window, @playgame,
+                                              @x + dx * start_dist,
+                                              @y + dy * start_dist, debris)
+        end
     end
 
     def got_shield
@@ -157,11 +214,7 @@ class Lander
     end
 
     def shield_intersect?(m)
-        if @has_shield && Math::hypot(m.x - @x, m.y - @y) < SHIELD_RADIUS
-            true
-        else
-            false
-        end
+        @has_shield && Math::hypot(m.x - @x, m.y - @y) < SHIELD_RADIUS
     end
 
     def shield_hit(m)
@@ -187,18 +240,17 @@ class Lander
 
     def accel(dvx, dvy)
         return if @fuel <= 0 
-        
-        @jet_sound.play(0.04)
 
         deviance = (1 - (@health / HEALTH.to_f)) / 4.0
 
-        @vx += dvx + deviance / 3 * rand
-        @vy += dvy + deviance / 3 * rand
+        @vx += dvx + deviance / 3 * rand 
+        @vy += dvy + deviance / 3 * rand 
         
         @fuel_sound.play(0.05) if @fuel <= 20
         @fuel -= 1 * (@da * 10)
 
-        if dvx.sgn != 0
+        if dvx.sgn != 0 && !landed
+            @jet_sound.play(0.04)
             sgn = dvx.sgn
             direc = sgn > 0 ? :left : :right
             @playgame.objects << Particle.new(@window, @x + 25 * -sgn , @y - 16,
@@ -211,6 +263,7 @@ class Lander
             end
             
         elsif dvy.sgn != 0
+            @jet_sound.play(0.04)
             sgn = dvy.sgn
             direc = sgn > 0 ? :up : :down
             @playgame.objects << Particle.new(@window, @x , @y + 20 * -sgn,

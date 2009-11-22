@@ -32,9 +32,7 @@ class Meteor
         end
 
         if @playgame.map.solid?(x, y) then
-                      
             @playgame.map.blast(x, y, @blast_size)
-          
             @collide_sound.play(1.0)
             
             5.times {
@@ -52,11 +50,15 @@ class Meteor
             @playgame.lander.meteor_hit(self, @blast_damage)
 
             false
-        elsif @x < 0 || @x > Map::WIDTH - 1 || @y < -60 || @y > Map::HEIGHT - 1
+        elsif @x < -200 || @x > Map::WIDTH + 200 ||  @y > Map::HEIGHT + 300
             false
         else
             true
         end
+    end
+
+    def warp(x, y)
+        @x, @y = x, y
     end
 
     def draw
@@ -72,17 +74,25 @@ class Wreckage < Meteor
 end
 
 class SmallMeteor < Meteor
+    def self.image
+        @image ||= Gosu::Image.new(Win, "#{MEDIA}/roid.png")
+    end
+
     def config
+        @image = SmallMeteor.image
         @blast_size = 30
         @blast_damage = 10
-        @image ||= Gosu::Image.new(@window, "#{MEDIA}/roid.png")
     end
 end
 
 class LargeMeteor < Meteor
+    def self.image
+        @image ||= Gosu::Image.new(Win, "#{MEDIA}/roidbig.png")
+    end
+    
     def config
+        @image = LargeMeteor.image
         @blast_size = 70
         @blast_damage = 50
-        @image ||= Gosu::Image.new(@window, "#{MEDIA}/roidbig.png")
     end
 end

@@ -3,9 +3,27 @@ class PowerUpManager
         @window = window
         @playgame = playgame
         @difficulty = @playgame.difficulty
+        @on = false
+    end
+
+    def start
+        @on = true
+        self
+    end
+
+    def stop
+        @on = false
+        self
+    end
+
+    def reset
+        @playgame.objects.delete_if { |v| v.is_a?(PowerUp) }
+        self
     end
 
     def update
+        return if !@on
+        
         if rand < @difficulty.refuel_factor then
             @playgame.objects << RocketJuice.new(@window, @playgame, 1024 * rand, rand(400))
         end

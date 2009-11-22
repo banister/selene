@@ -22,13 +22,22 @@ class Array
 end
 ## end monkey patches
 
+class Gosu::Image
+    def solid?(x, y)
+        return false if x < 0 || x > (self.width - 1) || y < 0 || y > (self.height - 1)
+        
+        # a pixel is solid if the alpha channel is not 0
+        self.get_pixel(x, y) && self.get_pixel(x, y)[3] != 0
+    end
+end
+
 module BoundingBox
-    attr_accessor :x,:y
+    attr_accessor :x, :y
     attr_reader :x_offset
     attr_reader :y_offset
 
     # reduce bounding box size for more refined collisions
-    Shrink = 0.8
+    Shrink = 0.7
 
     def set_bounding_box(xsize, ysize)
 
@@ -42,13 +51,8 @@ module BoundingBox
         oy_offset = other.y_offset.to_i
         ox_offset = other.x_offset.to_i
         
-        if @y - @y_offset < oy + oy_offset && @y + @y_offset > oy - oy_offset &&
-                @x - @x_offset < ox + ox_offset && @x + @x_offset > ox - ox_offset then
-            return true
-
-        else
-            return false
-        end
+         @y - @y_offset < oy + oy_offset && @y + @y_offset > oy - oy_offset &&
+                @x - @x_offset < ox + ox_offset && @x + @x_offset > ox - ox_offset
     end
 end
 
