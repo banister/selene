@@ -5,6 +5,7 @@ class PlayGame
     attr_reader :map, :lander, :level, :wind, :difficulty
     
     Gravity = 0.002
+    LandGravity = 0.1
     Wind_Velocity = 0.005
     FREEZE_MOVEMENT_TIMEOUT = 20
 
@@ -41,15 +42,29 @@ class PlayGame
         @meteor_manager = MeteorManager.new(@window, self)
         @powerup_manager = PowerUpManager.new(@window, self)
         @platform_manager = PlatformManager.new(@window, self)
+        @astronaut_manager = AstronautManager.new(@window, self)
+
+        @objects << @astronaut_manager
 
         place_platforms
+        place_astronauts
     end
 
     def place_platforms
         @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 0
-        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 2
+#        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 2
         @platform_manager.screen_is(0)
     end
+
+    def place_astronauts
+        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
+        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
+        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
+        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
+ #       @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 2
+        @astronaut_manager.screen_is(0)
+    end
+    
 
     def freeze_movement
         @freeze_movement = true
@@ -79,11 +94,13 @@ class PlayGame
             @map.change_screen_to(:left)
             @lander.x = 1000
             @meteor_manager.move_meteors_by(1022, 0)
+            @astronaut_manager.screen_is(@map.current_screen_index)
             @platform_manager.screen_is(@map.current_screen_index)
         when :right
             @map.change_screen_to(:right)
             @lander.x = 10
             @meteor_manager.move_meteors_by(-1022, 0)
+            @astronaut_manager.screen_is(@map.current_screen_index)
             @platform_manager.screen_is(@map.current_screen_index)
         when :top
             @map.change_screen_to(:top)
@@ -91,6 +108,7 @@ class PlayGame
             @meteor_manager.reset.add_and_randomize(10)
             @meteor_manager.frequency *= 3
             @powerup_manager.start
+            @astronaut_manager.screen_is(nil)
             @platform_manager.screen_is(nil)
         when :bottom
             @map.change_screen_to(:bottom)
@@ -98,13 +116,14 @@ class PlayGame
             @meteor_manager.move_meteors_by(0, -780)
             @meteor_manager.frequency /= 3
             @powerup_manager.reset.stop
+            @astronaut_manager.screen_is(@map.current_screen_index)
             @platform_manager.screen_is(@map.current_screen_index)
         end
 
         if @lander.landed then
  ###           @triumph_sound.play(1.0)
 #            @level_complete = true
-        elsif @lander.crashed then
+        elsif @lander.died then
             @crash_sound.play(1.0)
             @level_fail = true
         end

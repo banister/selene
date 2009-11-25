@@ -123,6 +123,7 @@ class Map
             end
         when :bottom
             @current_screen_index = @saved_screen_index
+            
         when :top
             @saved_screen_index = @current_screen_index if @current_screen_index
             @current_screen_index = nil

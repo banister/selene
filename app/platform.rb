@@ -24,7 +24,6 @@ class Platform
     end
 
     def set_into_place
-        puts "@screen is #{@screen}"
         @playgame.map.create_screen_at(@screen) if !@playgame.map.screen_images[@screen]
         self.y += 1 until @playgame.map.screen_images[@screen].solid?(self.x + (self.width / 2), self.y + (self.height))
         @playgame.objects << self

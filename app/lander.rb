@@ -1,11 +1,9 @@
-
-
-class Lander 
+class Lander
     include BoundingBox
     include Tasks
     
     attr_accessor :landed
-    attr_reader :fuel, :width, :height, :vel, :crashed, :da, :x, :y
+    attr_reader :fuel, :width, :height, :vel, :died, :da, :x, :y
     attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
     
     CRASH_VELOCITY = 0.6
@@ -33,7 +31,7 @@ class Lander
         @crash_velocity = 0.17 if @crash_velocity < 0.17
 
         self.landed = false
-        @crashed = false
+        @died = false
  
         @jet_color = NORMAL_JET_COLOR
 
@@ -83,13 +81,6 @@ class Lander
         end
     end
 
-    def left_foot
-        [@x + @width / 2, @y + @height / 2]                
-    end
-
-    def right_foot
-        [@x - @width / 2, @y + @height / 2]        
-    end
 
     def update
         handle_controls
@@ -118,12 +109,14 @@ class Lander
         
         if terrain_touch_down?
             if vel > @crash_velocity then
-                @crashed = true
+                @died = true
             end
+        elsif crashed?
+            @died = true
         elsif @health <= 0 then
-            @crashed = true
+            @died = true
 #         elsif (@x > 1070 || @x < -30 || @y > 788) && @fuel <= 0 then
-#             @crashed = true
+#             @died = true
 #             @scream_sound.play(1.0)
         end
 
@@ -136,6 +129,20 @@ class Lander
         Math::hypot(@vx, @vy)
     end
 
+    def crashed?
+        @playgame.map.solid?(@x, @y) || @playgame.map.solid?(@x, @y - @height / 2) ||
+            @playgame.map.solid?(@x + @width / 4, @y) || @playgame.map.solid?(@x - @width / 4, @y) && self.vel > @crash_velocity
+
+    end
+
+    def left_foot
+        [@x + @width / 2, @y + @height / 2]                
+    end
+
+    def right_foot
+        [@x - @width / 2, @y + @height / 2]        
+    end
+    
     def touch_down?
         terrain_touch_down? || platform_touch_down?
     end
