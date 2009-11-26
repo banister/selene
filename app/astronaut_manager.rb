@@ -26,7 +26,7 @@ class AstronautManager
 
     def update
         @astronauts.delete_if { |astro|
-            if astro.screen == @playgame.map.current_screen_index
+            if astro.screen == @playgame.map.current_screen
                 astro.update == false
             end
         }
@@ -34,7 +34,7 @@ class AstronautManager
 
     def draw
         @astronauts.each { |astro|
-            if astro.screen == @playgame.map.current_screen_index
+            if astro.screen == @playgame.map.current_screen
                 astro.draw
             end
         }

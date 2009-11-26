@@ -94,14 +94,14 @@ class PlayGame
             @map.change_screen_to(:left)
             @lander.x = 1000
             @meteor_manager.move_meteors_by(1022, 0)
-            @astronaut_manager.screen_is(@map.current_screen_index)
-            @platform_manager.screen_is(@map.current_screen_index)
+            @astronaut_manager.screen_is(@map.current_screen)
+            @platform_manager.screen_is(@map.current_screen)
         when :right
             @map.change_screen_to(:right)
             @lander.x = 10
             @meteor_manager.move_meteors_by(-1022, 0)
-            @astronaut_manager.screen_is(@map.current_screen_index)
-            @platform_manager.screen_is(@map.current_screen_index)
+            @astronaut_manager.screen_is(@map.current_screen)
+            @platform_manager.screen_is(@map.current_screen)
         when :top
             @map.change_screen_to(:top)
             @lander.y = 700
@@ -116,8 +116,8 @@ class PlayGame
             @meteor_manager.move_meteors_by(0, -780)
             @meteor_manager.frequency /= 3
             @powerup_manager.reset.stop
-            @astronaut_manager.screen_is(@map.current_screen_index)
-            @platform_manager.screen_is(@map.current_screen_index)
+            @astronaut_manager.screen_is(@map.current_screen)
+            @platform_manager.screen_is(@map.current_screen)
         end
 
         if @lander.landed then
@@ -134,7 +134,7 @@ class PlayGame
         @lander.draw
         @objects.each { |m| m.draw }
 
-        @font.draw("screen: #{@map.current_screen_index}", 340, 10, 3, 1.0, 1.0,
+        @font.draw("screen: #{@map.current_screen}", 340, 10, 3, 1.0, 1.0,
                    @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)
 
         @font.draw("fuel: #{@lander.fuel}", 840, 10, 3, 1.0, 1.0,

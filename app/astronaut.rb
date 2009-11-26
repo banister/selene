@@ -31,7 +31,7 @@ class Astronaut
 
     def update
         if !@playgame.map.solid?(self.x, self.y + (self.height / 2)) &&
-                @playgame.map.current_screen_index == self.screen
+                @playgame.map.current_screen == self.screen
             @vy += PlayGame::LandGravity
             @y += @vy
         else

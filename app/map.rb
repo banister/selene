@@ -3,7 +3,7 @@ class Map
     WIDTH = 1022
     HEIGHT = 768
 
-    attr_accessor :current_screen_index
+    attr_accessor :current_screen, :current_screen_image
     attr_reader :init_screen
 
     def initialize(window)
@@ -32,7 +32,7 @@ class Map
         1.times { create_screen }
         @init_screen = 0
 
-        @current_screen_index = 0
+        @current_screen = 0
     end
 
     def screen_images
@@ -99,34 +99,34 @@ class Map
         puts "...finished creating screen!"
     end
 
-    def current_screen
-        case @current_screen_index
+    def current_screen_image
+        case @current_screen
         when nil
             @blank_screen
         else
-            @screens[@current_screen_index]
+            @screens[@current_screen]
         end
     end
 
     def change_screen_to(which_screen)
         case which_screen
         when :right
-            if @current_screen_index == @screens.length - 1
+            if @current_screen == @screens.length - 1
                 create_screen(:right)
             end
-            @current_screen_index += 1 if @current_screen_index
+            @current_screen += 1 if @current_screen
         when :left
-            if @current_screen_index == 0
+            if @current_screen == 0
                 create_screen(:left)
             else
-                @current_screen_index -= 1 if @current_screen_index
+                @current_screen -= 1 if @current_screen
             end
         when :bottom
-            @current_screen_index = @saved_screen_index
+            @current_screen = @saved_screen_index
             
         when :top
-            @saved_screen_index = @current_screen_index if @current_screen_index
-            @current_screen_index = nil
+            @saved_screen_index = @current_screen if @current_screen
+            @current_screen = nil
         end
     end
     
@@ -134,7 +134,7 @@ class Map
         return false if x < 0 || x > (WIDTH - 1) || y < 0 || y > (HEIGHT - 1)
         
         # a pixel is solid if the alpha channel is not 0
-        current_screen.get_pixel(x, y) && current_screen.get_pixel(x, y)[3] != 0
+        current_screen_image.get_pixel(x, y) && current_screen_image.get_pixel(x, y)[3] != 0
     end
 
     def draw
@@ -145,13 +145,13 @@ class Map
 #         x = rand(current_screen.width)
 #         y = rand(current_screen.height)
 #         current_screen.splice(current_screen, x, y + 1, :crop => [x, y, x + 110, y + 110] )
-         current_screen.draw(0, 0, 1)
+         current_screen_image.draw(0, 0, 1)
     end
 
     def blast(x, y, radius)
 
         # draw a shadow
-        current_screen.circle x, y, radius + 10,  :fill => true, :shadow => true
-        current_screen.circle x, y, radius, :color => :alpha, :fill => true
+        current_screen_image.circle x, y, radius + 10,  :fill => true, :shadow => true
+        current_screen_image.circle x, y, radius, :color => :alpha, :fill => true
     end
 end
