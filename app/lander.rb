@@ -164,52 +164,34 @@ class Lander
         false
     end
 
+    def calculate_vector_after_impact(meteor)
+        
+    end
+
     def meteor_hit(meteor, damage)
         @health -= damage
 
         @collide_sound.play(1.0)
         chunk_size = 20
 
-        
-        if meteor.vx.sgn == 1 && @vx.sgn == 1 && meteor.x < @x
-            @vx += meteor.vx
-            puts "mvx is 1 svx is 1 and adding svx"
-        elsif meteor.vx.sgn == 1 && @vx.sgn == 1 && meteor.x > @x
-            @vx /= 2
-            puts "mvx is 1 svx is 1 and damping svx"
-        elsif meteor.vx.sgn == -1 && @vx.sgn == -1 && meteor.x > @x
-            @vx += meteor.vx
-            puts "mvx is -1 svx is -1 and adding svx"
+        # ignore the case for Wreckage
+        if !meteor.is_a?(Wreckage)
 
-        elsif meteor.vx.sgn == -1 && @vx.sgn == -1 && meteor.x < @x
-            @vx /= 2
-            puts "mvx is -1 svx is -1 and damping svx"
+            # if the meteor is going in the direction that ship is going and it's in FRONT of ship, then significantly reduce velocity (give velocity to meteor)
+            if meteor.vx.sgn == @vx.sgn && (meteor.x - @x).sgn == @vx.sgn
+                @vx /= 3
 
-        else
-            puts "just adding svx"
-            @vx += meteor.vx
-        end
+            # otherwise just add velocity
+            else
+                @vx += meteor.vx
+            end
 
-        if meteor.vy.sgn == 1 && @vy.sgn == 1 && meteor.y < @y
-            @vy += meteor.vy
-            puts "mvy is 1 svy is 1 and adding svy"
-
-        elsif meteor.vy.sgn == 1 && @vy.sgn == 1 && meteor.y > @y
-            @vy /= 2
-            puts "mvy is 1 svy is 1 and damping svy"
-
-        elsif meteor.vy.sgn == -1 && @vy.sgn == -1 && meteor.y > @y
-            @vy += meteor.vy
-            puts "mvy is -1 svy is -1 and adding svy"
-
-        elsif meteor.vy.sgn == -1 && @vy.sgn == -1 && meteor.y < @y
-            @vy /= 2
-            puts "mvy is -1 svy is -1 and damping svy"
-
-        else
-            puts "just adding svy"
-
-            @vy += meteor.vy
+            # same for y component
+            if (meteor.vy.sgn == @vy.sgn) && (meteor.y - @y).sgn == @vy.sgn
+                @vy /= 3
+            else
+                @vy += meteor.vy
+            end
         end
         
         x = rand(@image.width - chunk_size)
