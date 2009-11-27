@@ -26,7 +26,6 @@ class Astronaut
     def set_into_place
         @playgame.map.create_screen_at(@screen) if !@playgame.map.screen_images[@screen]
         self.y += 1 until @playgame.map.screen_images[@screen].solid?(self.x, self.y + (self.height / 2))
-        @playgame.objects << self
     end
 
     def update
@@ -55,7 +54,7 @@ class Astronaut
         @y -= 2
         if !@playgame.map.solid?(x + dir, y) &&
                 !@playgame.map.solid?(x - dir, y)
-            @x += dir
+            @x += dir / 2.0
 
         end
         2.times { @y += 1 unless @playgame.map.solid?(x, y + (self.height / 2) + 1) } 

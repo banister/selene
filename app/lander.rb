@@ -32,7 +32,7 @@ class Lander
 
         self.landed = false
         @died = false
- 
+        
         @jet_color = NORMAL_JET_COLOR
 
         init_sounds
@@ -81,7 +81,6 @@ class Lander
         end
     end
 
-
     def update
         handle_controls
         check_tasks
@@ -115,9 +114,9 @@ class Lander
             @died = true
         elsif @health <= 0 then
             @died = true
-#         elsif (@x > 1070 || @x < -30 || @y > 788) && @fuel <= 0 then
-#             @died = true
-#             @scream_sound.play(1.0)
+            #         elsif (@x > 1070 || @x < -30 || @y > 788) && @fuel <= 0 then
+            #             @died = true
+            #             @scream_sound.play(1.0)
         end
 
         @theta -= DELTA_THETA / 2 if @theta > 0
@@ -155,8 +154,11 @@ class Lander
     def platform_touch_down?
         @playgame.objects.each { |platform|
             if platform.is_a?(Platform)
-                return true if platform.solid?(*left_foot) &&
-                    platform.solid?(*right_foot)
+                if platform.solid?(*left_foot) &&
+                        platform.solid?(*right_foot)
+                    got_shield(0.1)
+                    return true
+                end
             end
         }
         false
@@ -168,8 +170,47 @@ class Lander
         @collide_sound.play(1.0)
         chunk_size = 20
 
-        @vx += meteor.vx
-        @vy += meteor.vy
+        
+        if meteor.vx.sgn == 1 && @vx.sgn == 1 && meteor.x < @x
+            @vx += meteor.vx
+            puts "mvx is 1 svx is 1 and adding svx"
+        elsif meteor.vx.sgn == 1 && @vx.sgn == 1 && meteor.x > @x
+            @vx /= 2
+            puts "mvx is 1 svx is 1 and damping svx"
+        elsif meteor.vx.sgn == -1 && @vx.sgn == -1 && meteor.x > @x
+            @vx += meteor.vx
+            puts "mvx is -1 svx is -1 and adding svx"
+
+        elsif meteor.vx.sgn == -1 && @vx.sgn == -1 && meteor.x < @x
+            @vx /= 2
+            puts "mvx is -1 svx is -1 and damping svx"
+
+        else
+            puts "just adding svx"
+            @vx += meteor.vx
+        end
+
+        if meteor.vy.sgn == 1 && @vy.sgn == 1 && meteor.y < @y
+            @vy += meteor.vy
+            puts "mvy is 1 svy is 1 and adding svy"
+
+        elsif meteor.vy.sgn == 1 && @vy.sgn == 1 && meteor.y > @y
+            @vy /= 2
+            puts "mvy is 1 svy is 1 and damping svy"
+
+        elsif meteor.vy.sgn == -1 && @vy.sgn == -1 && meteor.y > @y
+            @vy += meteor.vy
+            puts "mvy is -1 svy is -1 and adding svy"
+
+        elsif meteor.vy.sgn == -1 && @vy.sgn == -1 && meteor.y < @y
+            @vy /= 2
+            puts "mvy is -1 svy is -1 and damping svy"
+
+        else
+            puts "just adding svy"
+
+            @vy += meteor.vy
+        end
         
         x = rand(@image.width - chunk_size)
         y = rand(@image.height - chunk_size)
@@ -191,10 +232,10 @@ class Lander
         debris.splice @image, 0, 0, :crop => chunk
 
         @playgame.objects <<  Particle.new(@window, @x, @y)#  << Particle.new(@window, @x, @y,
-#                                                                             :image => debris,
-#                                                                             :direction => :random,
-#                                                                             :rotate => true,
-#                                                                             :lifespan => 1)
+        #                                                                             :image => debris,
+        #                                                                             :direction => :random,
+        #                                                                             :rotate => true,
+        #                                                                             :lifespan => 1)
 
         if(!meteor.is_a?(Wreckage))
             start_dist = Math::hypot(@image.width / 2, @image.height / 2) + 2
@@ -208,10 +249,10 @@ class Lander
         end
     end
 
-    def got_shield
+    def got_shield(timeout = SHIELD_TIMEOUT)
         @has_shield = true
         
-        new_task(:wait => SHIELD_TIMEOUT, :name => :shield_timeout) { @has_shield = false }
+        new_task(:wait => timeout, :name => :shield_timeout) { @has_shield = false }
     end
 
     def shield_remaining

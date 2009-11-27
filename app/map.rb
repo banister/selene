@@ -81,7 +81,10 @@ class Map
             :none
         }
             
-        image.fill 300, 760, :texture => @moonscape
+
+        image.bezier [rand(500), 600, rand(100), 700, rand(800), 800, rand(300), 750 ], :closed => true
+                image.fill 300, 760, :texture => @moonscape
+
 
         
         puts "..finished drawing!"
