@@ -19,7 +19,7 @@ require 'getready'
 
 class W < Gosu::Window
     def initialize
-        super(1024, 768, false, 20)
+        super(1020, 768, false, 20)
         
         # starting level
         @level = 10

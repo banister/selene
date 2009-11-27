@@ -1,6 +1,6 @@
 
 class Map
-    WIDTH = 1022
+    WIDTH = 1020
     HEIGHT = 768
 
     attr_accessor :current_screen, :current_screen_image
