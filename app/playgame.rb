@@ -51,16 +51,17 @@ class PlayGame
     end
 
     def place_platforms
-        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 0
+        3.times { 
+            @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => rand(5)
+        }
 #        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 2
         @platform_manager.screen_is(0)
     end
 
     def place_astronauts
-        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
-        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
-        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
-        @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 0
+        15.times { 
+            @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => rand(5)
+        }
  #       @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 2
         @astronaut_manager.screen_is(0)
     end

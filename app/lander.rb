@@ -131,7 +131,6 @@ class Lander
     def crashed?
         @playgame.map.solid?(@x, @y) || @playgame.map.solid?(@x, @y - @height / 2) ||
             @playgame.map.solid?(@x + @width / 4, @y) || @playgame.map.solid?(@x - @width / 4, @y) && self.vel > @crash_velocity
-
     end
 
     def left_foot
@@ -162,10 +161,6 @@ class Lander
             end
         }
         false
-    end
-
-    def calculate_vector_after_impact(meteor)
-        
     end
 
     def meteor_hit(meteor, damage)
