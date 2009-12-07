@@ -6,38 +6,25 @@ class AstronautManager
     end
 
     def add_astronaut(options = {})
-        astro = Astronaut.new(@window, @playgame, options[:screen], options[:x], options[:y])
+        astro = Astronaut.new(@window, @playgame, options[:x], options[:y])
         astro.set_into_place
         @astronauts << astro
     end
     
     def reset
-        @playgame.objects.delete_if { |v| v.is_a?(Astronaut) }
+        @astronauts = []
         self
-    end
-
-    def screen_is(screen)
-        @playgame.objects.delete_if { |v|
-            v.is_a?(Astronaut) && v.screen != screen
-        }
-
-        @playgame.objects += @astronauts.select { |v| v.screen == screen }
     end
 
     def update
         @astronauts.delete_if { |astro|
-            if astro.screen == @playgame.map.current_screen
-                astro.update == false
-            end
+            astro.update == false
         }
     end
 
     def draw
         @astronauts.each { |astro|
-            if astro.screen == @playgame.map.current_screen
                 astro.draw
-            end
         }
-            
     end
 end    

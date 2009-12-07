@@ -6,10 +6,11 @@ class MeteorManager
         @window = window
         @playgame = playgame
         @frequency = @playgame.difficulty.meteor_factor
+        @meteors =[]
     end
 
     def reset
-        @playgame.objects.delete_if { |v| v.is_a?(Meteor) }
+        @meteors = []
         self
     end
 
@@ -21,8 +22,8 @@ class MeteorManager
     end
 
     def move_meteors_by(dx, dy)
-        @playgame.objects.each { |v| 
-            v.warp(v.x + dx, v.y + dy) if v.is_a?(Meteor)
+        @meteors.each { |v| 
+            v.warp(v.x + dx, v.y + dy)
         }
         self
     end
@@ -34,15 +35,25 @@ class MeteorManager
             big_meteor_factor = 0.6 if big_meteor_factor > 0.6
             
             if rand < big_meteor_factor
-                @playgame.objects << LargeMeteor.new(@window, @playgame, x, y)
+                @meteors << LargeMeteor.new(@window, @playgame, x, y)
             else
-                @playgame.objects << SmallMeteor.new(@window, @playgame, x, y)
+                @meteors << SmallMeteor.new(@window, @playgame, x, y)
             end
     end
-    
+
     def update
+        @meteors.delete_if { |m|
+            m.update == false
+        }
+        
         if rand < @frequency
             create_meteor(Map::WIDTH * rand, - 20)
         end
+    end
+
+    def draw
+        @meteors.each { |m|
+            m.draw
+        }
     end
 end

@@ -1,4 +1,5 @@
 class PlatformManager
+    
     def initialize(window, playgame)
         @window = window
         @playgame = playgame
@@ -6,24 +7,28 @@ class PlatformManager
     end
 
     def add_platform(options = {})
-        plat = Platform.new(@window, @playgame, options[:screen], options[:x], options[:y])
+        plat = Platform.new(@window, @playgame, options[:x], options[:y])
         plat.set_into_place
         @platforms << plat
     end
 
+    def each(&block)
+        @platforms.each &block
+    end
     
     def reset
-        @playgame.objects.delete_if { |v| v.is_a?(Platform) }
-        self
+        @platforms = []
     end
 
-    def screen_is(screen)
-        @playgame.objects.delete_if { |v|
-            v.is_a?(Platform) && v.screen != screen
+    def update
+        @platforms.delete_if { |plat|
+            plat.update == false
         }
-
-        @playgame.objects += @platforms.select { |v| v.screen == screen }
     end
 
-    def update; end
+    def draw
+        @platforms.each { |plat|
+            plat.draw
+        }
+    end
 end    

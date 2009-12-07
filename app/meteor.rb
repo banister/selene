@@ -51,7 +51,7 @@ class Meteor
 
             false
         elsif @x < -200 || @x > Map::WIDTH + 200 ||  @y > Map::HEIGHT + 300
-            false
+#            false
         else
             true
         end
@@ -62,7 +62,7 @@ class Meteor
     end
 
     def draw
-        @image.draw_rot(@x, @y, 1, @theta)
+        @image.sdraw_rot(@x, @y, 1, @theta)
     end
 end
 

@@ -3,7 +3,7 @@ class Lander
     include Tasks
     
     attr_accessor :landed
-    attr_reader :fuel, :width, :height, :vel, :died, :da, :x, :y
+    attr_reader :fuel, :width, :height, :vel, :died, :da, :x, :y, :vx, :vy
     attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
     
     CRASH_VELOCITY = 0.6
@@ -17,6 +17,8 @@ class Lander
     DELTA_THETA = 2
 
     def initialize(window, playgame, x, y)
+        @xpos = x
+        @ypos = y
         @x, @y = x, y
         @vx = @vy = 0
         @da = 0.1
@@ -151,7 +153,7 @@ class Lander
     end
 
     def platform_touch_down?
-        @playgame.objects.each { |platform|
+        @playgame.platform_manager.each { |platform|
             if platform.is_a?(Platform)
                 if platform.solid?(*left_foot) &&
                         platform.solid?(*right_foot)
@@ -161,6 +163,11 @@ class Lander
             end
         }
         false
+    end
+
+    def impulse(dvx, dvy)
+        @vx += dvx
+        @vy += dvy
     end
 
     def meteor_hit(meteor, damage)
@@ -243,7 +250,7 @@ class Lander
     end
 
     def shield_hit(m)
-        @shield_image.draw_rot(@x, @y, 1, 0) if @has_shield
+        @shield_image.draw_rot(@xpos, @y, 1, 0) if @has_shield
 
         @shield_deflect_sound.play(0.5)
         @playgame.objects <<  Particle.new(@window, m.x, m.y,
@@ -319,6 +326,7 @@ class Lander
         # shake the craft when damaged
         shake = (1 - @health.to_f / HEALTH) * 20
         
-        @image.draw_rot @x, @y, 1, @theta + rand(shake) - shake / 2
+        @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2
+        #@image.sdraw_rot @x, @y, 1, @theta + rand(shake) - shake / 2
     end
 end

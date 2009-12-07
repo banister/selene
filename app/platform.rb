@@ -4,19 +4,14 @@ class Platform
     
     attr_accessor :x, :y
 
-    def initialize(window, playgame, screen, x, y)
+    def initialize(window, playgame, x, y)
         @x, @y = x, y
         @window = window
         @playgame = playgame
-        @screen = screen
 
         @@image ||= Gosu::Image.new(@window, "#{MEDIA}/platform.png")
 
         set_bounding_box(@@image.width, @@image.height)
-    end
-
-    def screen
-        @playgame.map.init_screen + @screen
     end
 
     def image
@@ -24,9 +19,10 @@ class Platform
     end
 
     def set_into_place
-        @playgame.map.create_screen_at(@screen) if !@playgame.map.screen_images[@screen]
-        self.y += 1 until @playgame.map.screen_images[@screen].solid?(self.x + (self.width / 2), self.y + (self.height))
-        @playgame.objects << self
+        while !@playgame.map.solid?(self.x + (self.width / 2), self.y + (self.height))
+            break if self.y > Map::HEIGHT
+            self.y += 1
+        end
     end
 
     def update
@@ -58,6 +54,6 @@ class Platform
     end
 
     def draw
-        @@image.draw(@x, @y, 1)
+        @@image.sdraw(@x, @y, 1)
     end
 end

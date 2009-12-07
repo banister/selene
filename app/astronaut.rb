@@ -3,20 +3,15 @@ class Astronaut
     
     attr_accessor :x, :y
 
-    def initialize(window, playgame, screen, x, y)
+    def initialize(window, playgame, x, y)
         @x, @y = x, y
         @vx, @vy = 0, 0
         @window = window
         @playgame = playgame
-        @screen = screen
 
         @@image ||= Gosu::Image.new(@window, "#{MEDIA}/mmstd.png")
 
         set_bounding_box(@@image.width, @@image.height)
-    end
-
-    def screen
-        @playgame.map.init_screen + @screen
     end
 
     def image
@@ -24,13 +19,14 @@ class Astronaut
     end
 
     def set_into_place
-        @playgame.map.create_screen_at(@screen) if !@playgame.map.screen_images[@screen]
-        self.y += 1 until @playgame.map.screen_images[@screen].solid?(self.x, self.y + (self.height / 2))
+        while !@playgame.map.solid?(self.x, self.y + (self.height))
+            break if self.y > Map::HEIGHT
+            self.y += 1
+        end
     end
 
     def update
-        if !@playgame.map.solid?(self.x, self.y + (self.height / 2)) &&
-                @playgame.map.current_screen == self.screen
+        if !@playgame.map.solid?(self.x, self.y + (self.height / 2))
             @vy += PlayGame::LandGravity
             @y += @vy
         else
@@ -82,6 +78,6 @@ class Astronaut
     end
 
     def draw
-        @@image.draw_rot(@x, @y, 1, 0)
+        @@image.sdraw_rot(@x, @y, 1, 0)
     end
 end

@@ -65,7 +65,7 @@ class Particle
     
     def draw
         @theta += @dtheta
-        @image.draw_rot(@x, @y , 1, @theta, 0.5, 0.5,
+        @image.sdraw_rot(@x, @y , 1, @theta, 0.5, 0.5,
                          @options[:scale], @options[:scale], @color)
     end
 end

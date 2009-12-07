@@ -28,11 +28,9 @@ class Map
 
         @screens = []
         @blank_screen = TexPlay.create_blank_image(@window, WIDTH, HEIGHT)
+        @moonscape = @@land_textures.random
 
-        1.times { create_screen }
-        @init_screen = 0
-
-        @current_screen = 0
+        2.times { create_screen }
     end
 
     def screen_images
@@ -46,13 +44,15 @@ class Map
     end
 
     def create_screen(position=:right)
+
         puts "creating a screen"
+        
         # base image for our lunar landscape
         image = TexPlay::create_blank_image(@window, WIDTH, HEIGHT)
+        #image.rect 0,0, image.width - 1, image.height - 1, :color => :rand
+
         puts "..created blank!"
         puts "..starting drawing!"
-
-        @moonscape = @@land_textures.random
 
         # now let's create the landscape
         points = []
@@ -65,6 +65,14 @@ class Map
             end
             points << p
         }
+
+        #image.line WIDTH - 1, 600, WIDTH - 1, HEIGHT - 1, :texture => @moonscape
+        #image.line 0, 600, 0, HEIGHT - 1, :texture => @moonscape
+
+        points.first.y = 600
+        points.last.x = WIDTH + 30
+
+        points.last.y = 600
 
         mag = rand(50) + 10
         rough = 2 + rand(20)
@@ -81,80 +89,81 @@ class Map
             :none
         }
             
-
         #image.bezier [rand(500), 700, rand(100), 800, rand(800), 900, rand(300), 850 ], :closed => true
         image.fill 300, 760, :texture => @moonscape
-
-
         
         puts "..finished drawing!"
 
         case position
         when :left
             @screens.unshift image
-
-            # keep track of where initial (0) screen is in the array
-            @init_screen += 1 
         when :right
             @screens.push image
         end
 
+
         puts "...finished creating screen!"
     end
 
-    def current_screen_image
-        case @current_screen
-        when nil
-            @blank_screen
-        else
-            @screens[@current_screen]
-        end
-    end
-
-    def change_screen_to(which_screen)
-        case which_screen
-        when :right
-            if @current_screen == @screens.length - 1
-                create_screen(:right)
-            end
-            @current_screen += 1 if @current_screen
-        when :left
-            if @current_screen == 0
-                create_screen(:left)
-            else
-                @current_screen -= 1 if @current_screen
-            end
-        when :bottom
-            @current_screen = @saved_screen_index
-            
-        when :top
-            @saved_screen_index = @current_screen if @current_screen
-            @current_screen = nil
-        end
-    end
-    
     def solid?(x, y)
-        return false if x < 0 || x > (WIDTH - 1) || y < 0 || y > (HEIGHT - 1)
+        return false if x < 0 || x > (@screens.length * WIDTH - 1) ||
+            y < 0 || y > (HEIGHT - 1)
+
+        s = (x.to_i / WIDTH) 
+        rx = x.to_i % WIDTH
+        screen = @screens[s]
         
         # a pixel is solid if the alpha channel is not 0
-        current_screen_image.get_pixel(x, y) && current_screen_image.get_pixel(x, y)[3] != 0
+        screen.get_pixel(rx, y) && screen.get_pixel(rx, y)[3] != 0
     end
 
+    def white_out
+        color = Gosu::Color.new(255, 255, 255, 255)
+        window = Win
+        Win.draw_quad(0, 0, color,
+                         window.width, 0, color,
+                         window.width, window.height, color,
+                         0, window.height, color, 0, :default)
+        
+    end
+    
     def draw
         @nebula_theta += 0.015
         @nebula.draw_rot(512, 384, 0, @nebula_theta)
+        #white_out
 
         # MELTLOL
 #         x = rand(current_screen.width)
 #         y = rand(current_screen.height)
-#         current_screen.splice(current_screen, x, y + 1, :crop => [x, y, x + 110, y + 110] )
-         current_screen_image.draw(0, 0, 1)
+        #         current_screen.splice(current_screen, x, y + 1, :crop => [x, y, x + 110, y + 110] )
+        @screens.each_with_index { |v, i|
+            v.sdraw(i * (WIDTH - 1), 0, 1)
+        }
+        #current_screen_image.draw(0, 0, 1)
     end
 
+
     def blast(x, y, radius)
+        s = (x.to_i / WIDTH) 
+        rx = x.to_i % WIDTH
+        screen = @screens[s]
+                
 
         # draw a shadow
-        current_screen_image.circle x, y, radius + 10,  :fill => true, :shadow => true
-        current_screen_image.circle x, y, radius, :color => :alpha, :fill => true
+        crater = lambda {         #puts "solid check, matched against screen #{s}"
+
+            circle rx, y, radius + 10,  :fill => true, :shadow => true
+            circle rx, y, radius, :color => :alpha, :fill => true
+        }
+
+        screen.paint &crater
+
+        if rx + radius > WIDTH
+            rx = rx - WIDTH
+            @screens[s + 1].paint &crater if s < @screens.length - 1
+        elsif rx - radius < 0
+            rx = rx + WIDTH
+            @screens[s - 1].paint &crater if s >= 1
+        end
     end
 end

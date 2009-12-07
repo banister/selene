@@ -2,6 +2,44 @@ MEDIA = File.dirname(__FILE__) + '/media'
 
 Point = Struct.new(:x, :y)
 
+class Gosu::Image
+    
+    def sdraw(*args)
+        x = args.shift - Win.screen_x
+        y = args.shift - Win.screen_y
+        
+        return if x > Map::WIDTH || x < -self.width || y > Map::HEIGHT || y < -self.height
+        
+        draw(x, y, *args)
+    end
+    
+    def sdraw_rot(*args)
+        x = args.shift - Win.screen_x
+        y = args.shift - Win.screen_y
+        halfwidth = self.width / 2
+        halfheight = self.height / 2
+        
+        return if x > Map::WIDTH + halfwidth ||
+            x < -halfwidth || y > Map::HEIGHT + halfheight || y < -halfheight
+        
+        draw_rot(x, y, *args)
+    end
+
+    def solid?(x, y)
+        return false if x < 0 || x > (self.width - 1) || y < 0 || y > (self.height - 1)
+        
+        # a pixel is solid if the alpha channel is not 0
+        self.get_pixel(x, y) && self.get_pixel(x, y)[3] != 0
+    end    
+end
+
+## monkey patches to Vector
+class Vector
+    def normalize
+        self * (1.0 / self.r)
+    end
+end
+
 ## monkey patches to core classes 
 class Numeric
     def round_to(n=0)
@@ -21,15 +59,6 @@ class Array
     end
 end
 ## end monkey patches
-
-class Gosu::Image
-    def solid?(x, y)
-        return false if x < 0 || x > (self.width - 1) || y < 0 || y > (self.height - 1)
-        
-        # a pixel is solid if the alpha channel is not 0
-        self.get_pixel(x, y) && self.get_pixel(x, y)[3] != 0
-    end
-end
 
 module BoundingBox
     attr_accessor :x, :y

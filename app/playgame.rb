@@ -2,7 +2,7 @@ class PlayGame
     include Tasks
     
     attr_accessor :objects
-    attr_reader :map, :lander, :level, :wind, :difficulty
+    attr_reader :map, :lander, :platform_manager, :level, :wind, :difficulty
     
     Gravity = 0.002
     LandGravity = 0.1
@@ -36,34 +36,42 @@ class PlayGame
         end
 
         @objects = []
-        @lander = Lander.new(@window, self, 600, 100)
+        @lander = Lander.new(@window, self, 600, 300)
+        Win.screen_x = 0
 
         @difficulty = Difficulty.new(self)
         @meteor_manager = MeteorManager.new(@window, self)
+        @turret_manager = TurretManager.new(@window, self)
         @powerup_manager = PowerUpManager.new(@window, self)
         @platform_manager = PlatformManager.new(@window, self)
         @astronaut_manager = AstronautManager.new(@window, self)
 
         @objects << @astronaut_manager
+        @objects << @platform_manager
+        @objects << @meteor_manager
+        @objects << @turret_manager
 
         place_platforms
         place_astronauts
+        place_turrets
     end
 
     def place_platforms
         3.times { 
-            @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => rand(5)
+            @platform_manager.add_platform :x => rand(1600) + 100, :y => 300
         }
-#        @platform_manager.add_platform :x => rand(800) + 100, :y => 300, :screen => 2
-        @platform_manager.screen_is(0)
     end
 
     def place_astronauts
         15.times { 
-            @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => rand(5)
+            @astronaut_manager.add_astronaut :x => rand(1600) + 100, :y => 300
         }
- #       @astronaut_manager.add_astronaut :x => rand(800) + 100, :y => 300, :screen => 2
-        @astronaut_manager.screen_is(0)
+    end
+
+    def place_turrets
+        3.times { 
+            @turret_manager.add_turret :x => rand(1600) + 100, :y => 300
+        }
     end
     
 
@@ -83,43 +91,11 @@ class PlayGame
     def update
         check_tasks
  
-        @meteor_manager.update
         @powerup_manager.update
-        @platform_manager.update
         @lander.update
 
         @objects.reject! { |m| m.update == false }
         
-        case @lander.screen_at
-        when :left
-            @map.change_screen_to(:left)
-            @lander.x = 1000
-            @meteor_manager.move_meteors_by(1022, 0)
-            @astronaut_manager.screen_is(@map.current_screen)
-            @platform_manager.screen_is(@map.current_screen)
-        when :right
-            @map.change_screen_to(:right)
-            @lander.x = 10
-            @meteor_manager.move_meteors_by(-1022, 0)
-            @astronaut_manager.screen_is(@map.current_screen)
-            @platform_manager.screen_is(@map.current_screen)
-        when :top
-            @map.change_screen_to(:top)
-            @lander.y = 700
-            @meteor_manager.reset.add_and_randomize(10)
-            @meteor_manager.frequency *= 3
-            @powerup_manager.start
-            @astronaut_manager.screen_is(nil)
-            @platform_manager.screen_is(nil)
-        when :bottom
-            @map.change_screen_to(:bottom)
-            @lander.y = 10
-            @meteor_manager.move_meteors_by(0, -780)
-            @meteor_manager.frequency /= 3
-            @powerup_manager.reset.stop
-            @astronaut_manager.screen_is(@map.current_screen)
-            @platform_manager.screen_is(@map.current_screen)
-        end
 
         if @lander.landed then
  ###           @triumph_sound.play(1.0)
@@ -128,6 +104,9 @@ class PlayGame
             @crash_sound.play(1.0)
             @level_fail = true
         end
+
+        Win.screen_x +=  @lander.vx
+#        Win.screen_y +=  @lander.vy
     end
     
     def draw

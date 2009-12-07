@@ -1,9 +1,12 @@
 require 'rubygems'
 require 'texplay'
 require 'common'
+require 'matrix'
 require 'map'
 require 'powerups'
 require 'powerup_manager'
+require 'turret'
+require 'turret_manager'
 require 'meteor'
 require 'meteor_manager'
 require 'platform'
@@ -15,11 +18,14 @@ require 'particle'
 require 'difficulty'
 require 'playgame'
 require 'getready'
+require 'devil/gosu'
 
 
 class W < Gosu::Window
+    attr_accessor :screen_x, :screen_y
+    
     def initialize
-        super(1020, 768, false, 20)
+        super(Map::WIDTH, Map::HEIGHT, false, 20)
         
         # starting level
         @level = 10
@@ -28,6 +34,8 @@ class W < Gosu::Window
 
         @state = GetReady.new(self, @level)
         @frame_counter = FPSCounter.new
+
+        @screen_x = @screen_y = 0
     end
 
     def update
@@ -46,8 +54,10 @@ class W < Gosu::Window
             @state = GetReady.new(self, @level, :failure)
 
         elsif button_down?(Gosu::KbEscape)
+            screenshot.save("selene.jpg", :quality => 80)
             exit
         end
+
 
         @state.update
         @frame_counter.register_tick
