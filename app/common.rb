@@ -51,6 +51,14 @@ class Numeric
     def sgn
         self <=> 0
     end
+
+    def to_radians
+        (self / 180.0) * Math::PI
+    end
+
+    def to_degrees
+        (self / Math::PI) * 180.0
+    end
 end
 
 class Array
@@ -134,6 +142,84 @@ module Tasks
 
         task[:wait_time] - (current_time - task[:init_time])
     end
+end
+
+
+    
+#
+# A chingu trait providing timer-methods to its includer, examples:
+# during(300) { @color = Color.new(0xFFFFFFFF) } # forces @color to white ever update for 300 ms
+# after(400) { self.destroy! } # destroy object after 400 ms
+# between(1000,2000) { self.rotate(10) } # starting after 1 second, call rotate(10) each update during 1 second
+#
+# All the above can be combined with a 'then { do_something }'. For example, a classic shmup damage effect:
+# during(100) { @color.alpha = 100 }.then { @color.alpha = 255 }
+#
+module Timer
+    def setup_timers
+        #
+        # Timers are saved as an array of arrays where each entry contains:
+        # [start_time, end_time (or nil if one-shot), &block]
+        #
+        @_timers = Array.new
+        @_repeating_timers = Array.new
+    end
+    
+    def during(time, &block)
+        ms = Gosu::milliseconds()
+        @_last_timer = [ms, ms + time, block]
+        @_timers << @_last_timer
+        self
+    end
+    
+    def after(time, &block)
+        ms = Gosu::milliseconds()
+        @_last_timer = [ms + time, nil, block]
+        @_timers << @_last_timer
+        self
+    end
+    
+    def between(start_time, end_time, &block)
+        ms = Gosu::milliseconds()
+        @_last_timer = [ms + start_time, ms + end_time, block]
+        @_timers << @_last_timer
+        self
+    end
+    
+    def then(&block)
+        # ...use one-shots start_time for our trailing "then".
+        # ...use durable timers end_time for our trailing "then".
+        start_time = @_last_timer[1].nil? ? @_last_timer[0] : @_last_timer[1]
+        @_timers << [start_time, nil, block]
+    end
+    
+    def every(delay, &block)
+        ms = Gosu::milliseconds()
+        @_repeating_timers << [ms + delay, delay, block]
+    end
+    
+    def update_trait
+        ms = Gosu::milliseconds()
+        
+        @_timers.each do |start_time, end_time, block|
+            block.call if ms > start_time && (end_time == nil || ms < end_time)
+        end
+        
+        index = 0
+        @_repeating_timers.each do |start_time, delay, block|
+            if ms > start_time
+                block.call
+                @_repeating_timers[index] = [ms + delay, delay, block]
+            end
+            index += 1
+        end
+        
+        # Remove one-shot timers (only a start_time, no end_time) and all timers which have expired
+        @_timers.reject! { |start_time, end_time, block| (ms > start_time && end_time == nil) || (end_time != nil && ms > end_time) }
+        
+        super
+    end
+    
 end
 
 class FPSCounter

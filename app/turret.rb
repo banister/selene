@@ -1,7 +1,8 @@
 
 class Turret
     include BoundingBox
-    include Tasks
+    include Timer
+#    include Tasks
     
     attr_accessor :x, :y
 
@@ -15,6 +16,7 @@ class Turret
         @barrel_theta = 0
 
         set_bounding_box(@@image.width, @@image.height)
+        setup_timers
     end
 
     def image
@@ -34,17 +36,13 @@ class Turret
             self.y += 1
         end
 
-        @playgame.lander.impulse(0, -0.1) if intersect?(@playgame.lander)
+        @playgame.lander.impulse(0, -0.2) if intersect?(@playgame.lander)
 
-      #  if !task_exists?(:target_timeout)
-      #      new_task(:wait => 2, :name => :target_timeout) do
-                @locate_target = true
-                dx = @playgame.lander.x - @x
-                dy = @playgame.lander.y - @y
-                target_vector = Vector[dx, dy].normalize
-                @target_theta = ((Math.asin(target_vector[0]) / Math::PI) * 180)
-       #     end
-       # end
+        @locate_target = true
+        dx = @playgame.lander.x - @x
+        dy = @playgame.lander.y - @y
+        target_vector = Vector[dx, dy].normalize
+        @target_theta = Math.asin(target_vector[0]).to_degrees
         locate_target
     end
 
@@ -53,7 +51,11 @@ class Turret
 
         @barrel_theta += 1 if @target_theta > @barrel_theta 
         @barrel_theta -= 1 if @target_theta < @barrel_theta 
-        @locate_target = false if (@barrel_theta - @target_theta).abs < 1
+        if (@barrel_theta - @target_theta).abs < 1
+            @locate_target = false
+            b = Bullet.new(@playgame, @x, @y, 2, @barrel_theta)
+            @playgame.objects << b
+        end
         true
     end
 
