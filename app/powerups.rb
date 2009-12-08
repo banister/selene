@@ -22,7 +22,7 @@ class PowerUp
         @theta = rand(360)
         @dtheta = rand(2) == 0 ? -1 : 1
 
-        new_task(:wait => TIMEOUT, :name => :timeout) { @fade_out = true }
+        after(TIMEOUT, :name => :timeout) { @fade_out = true }
         
         @color = Gosu::Color.new(255, 255, 255, 255)
     end

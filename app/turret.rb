@@ -1,8 +1,7 @@
 
 class Turret
     include BoundingBox
-    include Timer
-#    include Tasks
+    include Tasks
     
     attr_accessor :x, :y
 
@@ -16,7 +15,6 @@ class Turret
         @barrel_theta = 0
 
         set_bounding_box(@@image.width, @@image.height)
-        setup_timers
     end
 
     def image
@@ -31,6 +29,7 @@ class Turret
     end
 
     def update
+        check_tasks
         while !@playgame.map.solid?(self.x, self.y + (self.height / 2))
             break if self.y > Map::HEIGHT
             self.y += 1
@@ -38,23 +37,28 @@ class Turret
 
         @playgame.lander.impulse(0, -0.2) if intersect?(@playgame.lander)
 
-        @locate_target = true
-        dx = @playgame.lander.x - @x
-        dy = @playgame.lander.y - @y
-        target_vector = Vector[dx, dy].normalize
-        @target_theta = Math.asin(target_vector[0]).to_degrees
-        locate_target
+        track_target
     end
 
-    def locate_target
-        return if !@locate_target
+    def target_vector
+        dx = @playgame.lander.x - @x
+        dy = @playgame.lander.y - @y
+        Vector[dx, dy].normalize
+    end
 
-        @barrel_theta += 1 if @target_theta > @barrel_theta 
-        @barrel_theta -= 1 if @target_theta < @barrel_theta 
-        if (@barrel_theta - @target_theta).abs < 1
-            @locate_target = false
-            b = Bullet.new(@playgame, @x, @y, 2, @barrel_theta)
-            @playgame.objects << b
+    def track_target
+        dy = @playgame.lander.y - @y
+        target_theta = Math.asin(target_vector[0]).to_degrees
+        target_theta = 0 if dy > 0
+        
+        @barrel_theta += 1 if target_theta > @barrel_theta 
+        @barrel_theta -= 1 if target_theta < @barrel_theta
+        
+        if (@barrel_theta - target_theta).abs < 1 && dy < 0
+            after(2, :name => :bullet_timeout, :preserve => true) do
+                b = Bullet.new(@playgame, *barrel_tip, 2, @barrel_theta)
+                @playgame.objects << b
+            end
         end
         true
     end
@@ -78,6 +82,14 @@ class Turret
 
     def warp(x, y)
         @x, @y = x, y
+    end
+
+    def barrel_tip
+        y = @y - @@image.height / 2 + 4
+        barrel_length = @@barrel.height
+        
+        [@x + barrel_length * target_vector[0],
+         y + barrel_length * target_vector[1]]
     end
 
     def draw

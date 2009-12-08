@@ -12,6 +12,7 @@ class Meteor
         @dtheta = 5 * rand * (rand(2) == 0 ? -1 : 1)
         @window = window
         @playgame = playgame
+        @impulse_factor = 1
 
         @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
         
@@ -47,7 +48,7 @@ class Meteor
             
             false
         elsif intersect?(@playgame.lander) then
-            @playgame.lander.meteor_hit(self, @blast_damage)
+            @playgame.lander.object_hit(self, @blast_damage, @impulse_factor)
 
             false
         elsif @x < -200 || @x > Map::WIDTH + 200 ||  @y > Map::HEIGHT + 300
@@ -70,6 +71,7 @@ class Wreckage < Meteor
     def config
         @blast_size = 20
         @blast_damage = 10
+        @impulse_factor = 0
     end
 end
 
@@ -94,5 +96,6 @@ class LargeMeteor < Meteor
         @image = LargeMeteor.image
         @blast_size = 70
         @blast_damage = 50
+        @impulse_factor = 3
     end
 end

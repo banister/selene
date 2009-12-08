@@ -97,19 +97,20 @@ end
 # tasks NEED a name so that new (updated) tasks can overwrite their older versions that have
 # not yet completed.
 module Tasks
-    def new_task(options={}, &block)
+    def after(timeout, options={}, &block)
         @_tasks_ ||= {}
 
-        raise ArgumentError, "must provide a wait time" if !options[:wait]
         raise ArgumentError, "must provide a name" if !options[:name]
-
+        
         task = {
             :init_time => Time.now.to_f,
-            :wait_time => options[:wait],
+            :wait_time => timeout,
             :block => block,
         }
         
-        @_tasks_[options[:name]] = task
+        if !@_tasks_[options[:name]] || !options[:preserve]
+            @_tasks_[options[:name]] = task
+        end
     end
 
     def check_tasks

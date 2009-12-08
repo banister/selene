@@ -170,7 +170,7 @@ class Lander
         @vy += dvy
     end
 
-    def meteor_hit(meteor, damage)
+    def object_hit(meteor, damage, impulse_factor = 1)
         @health -= damage
 
         @collide_sound.play(1.0)
@@ -185,14 +185,14 @@ class Lander
 
             # otherwise just add velocity
             else
-                @vx += meteor.vx
+                @vx += meteor.vx * impulse_factor
             end
 
             # same for y component
             if (meteor.vy.sgn == @vy.sgn) && (meteor.y - @y).sgn == @vy.sgn
                 @vy /= 3
             else
-                @vy += meteor.vy
+                @vy += meteor.vy * impulse_factor
             end
         end
         
@@ -236,7 +236,7 @@ class Lander
     def got_shield(timeout = SHIELD_TIMEOUT)
         @has_shield = true
         
-        new_task(:wait => timeout, :name => :shield_timeout) { @has_shield = false }
+        after(timeout, :name => :shield_timeout) { @has_shield = false }
     end
 
     def shield_remaining

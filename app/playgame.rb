@@ -69,7 +69,7 @@ class PlayGame
     end
 
     def place_turrets
-        3.times { 
+        2.times { 
             @turret_manager.add_turret :x => rand(1600) + 100, :y => 300
         }
     end
@@ -79,7 +79,7 @@ class PlayGame
         @freeze_movement = true
 
         # unfreeze movement in FREEZE_MOVEMENT_TIMEOUT seconds
-        new_task(:wait => FREEZE_MOVEMENT_TIMEOUT, :name => :freeze_timeout) {
+        after(FREEZE_MOVEMENT_TIMEOUT, :name => :freeze_timeout) {
             @freeze_movement = false
         }
     end
