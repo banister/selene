@@ -4,6 +4,7 @@ class Turret
     include Tasks
 
     HEALTH = 100
+    Range = 500
     
     attr_accessor :x, :y, :health
 
@@ -56,18 +57,30 @@ class Turret
         Vector[dx, dy].normalize
     end
 
-    def track_target
+    def target_in_range?
         dy = @playgame.lander.y - @y
-        target_theta = Math.asin(target_vector[0]).to_degrees
-        target_theta = 0 if dy > 0
-        
+        dx = @playgame.lander.x - @x
+        dy < 0 && dx.abs <= Range
+    end
+
+    def track_target
+
+        if target_in_range?
+            target_theta = Math.asin(target_vector[0]).to_degrees
+
+            # shoot if lined up
+            if (@barrel_theta - target_theta).abs < 1 
+                before(2, :name => :bullet_timeout, :preserve => true) do
+                    @playgame.objects << Bullet.new(@playgame, *barrel_tip, 2, @barrel_theta)
+                end
+            end
+        else
+            target_theta = 0
+        end
+
+        # update barrel angle
         @barrel_theta += (target_theta - @barrel_theta).sgn
         
-        if (@barrel_theta - target_theta).abs < 1 && dy < 0
-            after(2, :name => :bullet_timeout, :preserve => true) do
-                @playgame.objects << Bullet.new(@playgame, *barrel_tip, 2, @barrel_theta)
-            end
-        end
         true
     end
 

@@ -58,19 +58,19 @@ class PlayGame
     end
 
     def place_platforms
-        4.times { 
+        10.times { 
             @platform_manager.add_platform :x => rand(@map.total_map_width), :y => 100
         }
     end
 
     def place_astronauts
-        15.times { 
+        10.times { 
             @astronaut_manager.add_astronaut :x => rand(@map.total_map_width), :y => 100
         }
     end
 
     def place_turrets
-        5.times { 
+        10.times { 
             @turret_manager.add_turret :x => rand(@map.total_map_width), :y => 100
         }
     end

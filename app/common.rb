@@ -118,13 +118,30 @@ module Tasks
         end
     end
 
+    def before(timeout, options={}, &block)
+        @_tasks_ ||= {}
+
+        raise ArgumentError, "must provide a name" if !options[:name]
+ 
+        task = {
+            :init_time => Time.now.to_f,
+            :wait_time => timeout,
+        }
+
+        if !task_exists?(options[:name]) || !options[:preserve]
+            @_tasks_[options[:name]] = task
+            block.call
+        end
+    end
+    
+
     def check_tasks
         return if !@_tasks_
         
         current_time = Time.now.to_f
         @_tasks_.reject! do |name, task|
             if current_time - task[:init_time] >= task[:wait_time]
-                task[:block].call
+                task[:block].call if task[:block]
                 true
             else
                 false
