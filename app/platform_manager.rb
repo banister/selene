@@ -15,6 +15,10 @@ class PlatformManager
     def each(&block)
         @platforms.each &block
     end
+
+    def any?(&block)
+        @platforms.any? &block
+    end
     
     def reset
         @platforms = []

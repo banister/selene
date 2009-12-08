@@ -14,9 +14,17 @@ class MeteorManager
         self
     end
 
+    def each(&block)
+        @meteors.each &block
+    end
+
+    def find(&block)
+        @meteors.find &block
+    end
+
     def add_and_randomize(number)
         number.times { 
-            create_meteor(Map::WIDTH * rand, 700 * rand)
+            create_meteor(@playgame.map.total_map_width * rand, 700 * rand)
         }
         self
     end
@@ -47,7 +55,7 @@ class MeteorManager
         }
         
         if rand < @frequency
-            create_meteor(Map::WIDTH * rand, - 20)
+            create_meteor(@playgame.map.total_map_width * rand, - 20)
         end
     end
 

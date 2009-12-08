@@ -2,6 +2,7 @@
 class Meteor
     include BoundingBox 
     
+    attr_accessor :active
     attr_reader :vx, :vy, :x, :y
     
     def initialize(window, playgame, x, y, image = nil)
@@ -12,6 +13,7 @@ class Meteor
         @dtheta = 5 * rand * (rand(2) == 0 ? -1 : 1)
         @window = window
         @playgame = playgame
+        @active = true
         @impulse_factor = 1
 
         @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
@@ -24,7 +26,8 @@ class Meteor
     end
 
     def update
-
+        return false if !@active
+        
         if !@playgame.is_movement_frozen?
             @x += @vx
             @y += @vy
@@ -51,8 +54,8 @@ class Meteor
             @playgame.lander.object_hit(self, @blast_damage, @impulse_factor)
 
             false
-        elsif @x < -200 || @x > Map::WIDTH + 200 ||  @y > Map::HEIGHT + 300
-#            false
+        elsif @x < -200 || @x > @playgame.map.total_map_width + 200 ||  @y > Map::HEIGHT + 300
+            false
         else
             true
         end

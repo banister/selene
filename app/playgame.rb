@@ -2,7 +2,7 @@ class PlayGame
     include Tasks
     
     attr_accessor :objects
-    attr_reader :map, :lander, :platform_manager, :level, :wind, :difficulty
+    attr_reader :map, :lander, :platform_manager, :meteor_manager, :level, :wind, :difficulty
     
     Gravity = 0.002
     LandGravity = 0.1
@@ -57,20 +57,20 @@ class PlayGame
     end
 
     def place_platforms
-        3.times { 
-            @platform_manager.add_platform :x => rand(1600) + 100, :y => 300
+        4.times { 
+            @platform_manager.add_platform :x => rand(@map.total_map_width), :y => 100
         }
     end
 
     def place_astronauts
         15.times { 
-            @astronaut_manager.add_astronaut :x => rand(1600) + 100, :y => 300
+            @astronaut_manager.add_astronaut :x => rand(@map.total_map_width), :y => 100
         }
     end
 
     def place_turrets
-        2.times { 
-            @turret_manager.add_turret :x => rand(1600) + 100, :y => 300
+        5.times { 
+            @turret_manager.add_turret :x => rand(@map.total_map_width), :y => 100
         }
     end
     

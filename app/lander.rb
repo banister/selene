@@ -154,12 +154,10 @@ class Lander
 
     def platform_touch_down?
         @playgame.platform_manager.each { |platform|
-            if platform.is_a?(Platform)
-                if platform.solid?(*left_foot) &&
-                        platform.solid?(*right_foot)
-                    got_shield(0.1)
-                    return true
-                end
+            if platform.solid?(*left_foot) &&
+                    platform.solid?(*right_foot)
+                got_shield(0.1)
+                return true
             end
         }
         false

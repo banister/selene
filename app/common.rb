@@ -91,6 +91,11 @@ module BoundingBox
          @y - @y_offset < oy + oy_offset && @y + @y_offset > oy - oy_offset &&
                 @x - @x_offset < ox + ox_offset && @x + @x_offset > ox - ox_offset
     end
+
+    def point_intersect?(other)
+        other.x > @x - @x_offset && other.x < @x + @x_offset &&
+            other.y > @y - @y_offset && other.y < @y + @y_offset
+    end
 end
 
 # inspired by phelps (Deathly Dimensions)

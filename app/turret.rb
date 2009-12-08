@@ -51,13 +51,11 @@ class Turret
         target_theta = Math.asin(target_vector[0]).to_degrees
         target_theta = 0 if dy > 0
         
-        @barrel_theta += 1 if target_theta > @barrel_theta 
-        @barrel_theta -= 1 if target_theta < @barrel_theta
+        @barrel_theta += (target_theta - @barrel_theta).sgn
         
         if (@barrel_theta - target_theta).abs < 1 && dy < 0
             after(2, :name => :bullet_timeout, :preserve => true) do
-                b = Bullet.new(@playgame, *barrel_tip, 2, @barrel_theta)
-                @playgame.objects << b
+                @playgame.objects << Bullet.new(@playgame, *barrel_tip, 2, @barrel_theta)
             end
         end
         true
