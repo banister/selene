@@ -28,9 +28,21 @@ class Bullet
             return false
         end
 
+        turret = @playgame.turret_manager.find { |t| t.point_intersect?(self) }
+        if turret
+            turret.object_hit(self, 20)
+            smoke_cloud
+            return false
+        end
+
         # lander?
         if intersect?(@playgame.lander)
             @playgame.lander.object_hit(self, 100, 0.4)
+            false
+
+        # shield?
+        elsif @playgame.lander.shield_intersect?(self) then
+            @playgame.lander.shield_hit(self)
             false
 
         # screen?

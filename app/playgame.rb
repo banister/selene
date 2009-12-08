@@ -2,7 +2,8 @@ class PlayGame
     include Tasks
     
     attr_accessor :objects
-    attr_reader :map, :lander, :platform_manager, :meteor_manager, :level, :wind, :difficulty
+    attr_reader :map, :lander, :platform_manager, :meteor_manager, :turret_manager, :level, :wind, :difficulty
+    
     
     Gravity = 0.002
     LandGravity = 0.1

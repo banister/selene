@@ -24,6 +24,7 @@ class Lander
         @da = 0.1
         @window = window
         @health = HEALTH
+        @health_meter = HealthMeter.new
         @playgame = playgame
         @crash_velocity = CRASH_VELOCITY - @playgame.level / 60.0
         @fuel = FUEL - @playgame.level * 2
@@ -168,8 +169,13 @@ class Lander
         @vy += dvy
     end
 
+    def health=(h)
+        @health = h
+        @health_meter.update_health_status(h.to_f / HEALTH)
+    end
+
     def object_hit(meteor, damage, impulse_factor = 1)
-        @health -= damage
+        self.health -= damage
 
         @collide_sound.play(1.0)
         chunk_size = 20
@@ -326,5 +332,6 @@ class Lander
         
         @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2
         #@image.sdraw_rot @x, @y, 1, @theta + rand(shake) - shake / 2
+        @health_meter.draw_rot @xpos, @y - 50, 1, 0
     end
 end

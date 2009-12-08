@@ -30,7 +30,7 @@ class Map
         @blank_screen = TexPlay.create_blank_image(@window, WIDTH, HEIGHT)
         @moonscape = @@land_textures.random
 
-        3.times { create_screen }
+        6.times { create_screen }
     end
 
     def screen_images
@@ -74,7 +74,7 @@ class Map
         #image.line 0, 600, 0, HEIGHT - 1, :texture => @moonscape
 
         points.first.y = 600
-        points.last.x = WIDTH + 30
+        points.last.x = WIDTH - 1
 
         points.last.y = 600
 
@@ -92,6 +92,9 @@ class Map
             end
             :none
         }
+
+        # ensure the bezier ends at this point (so next screen can join up nicely)
+        image.line_to(points.last.x, points.last.y, :texture => @moonscape)
             
         #image.bezier [rand(500), 700, rand(100), 800, rand(800), 900, rand(300), 850 ], :closed => true
         image.fill 300, 760, :texture => @moonscape

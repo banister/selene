@@ -2,13 +2,17 @@
 class Turret
     include BoundingBox
     include Tasks
+
+    HEALTH = 100
     
-    attr_accessor :x, :y
+    attr_accessor :x, :y, :health
 
     def initialize(window, playgame, x, y)
         @x, @y = x, y
         @window = window
         @playgame = playgame
+        @health = HEALTH
+        @health_meter = HealthMeter.new
 
         @@image ||= Gosu::Image.new(@window, "#{MEDIA}/turret.png")
         @@barrel ||= Gosu::Image.new(@window, "#{MEDIA}/barrel.png")
@@ -26,6 +30,12 @@ class Turret
             break if self.y > Map::HEIGHT
             self.y += 1
         end
+    end
+
+    def health=(h)
+        h = 0 if h < 0 
+        @health = h.to_i
+        @health_meter.update_health_status(h.to_f / HEALTH)
     end
 
     def update
@@ -61,6 +71,10 @@ class Turret
         true
     end
 
+    def object_hit(obj, damage)
+        self.health -= damage
+    end
+    
     def solid?(x, y)
         x = x - self.x
         y = y - self.y
@@ -93,5 +107,6 @@ class Turret
     def draw
         @@barrel.sdraw_rot(@x, @y - @@image.height / 2 + 4, 1, @barrel_theta, 0.5, 1)
         @@image.sdraw_rot(@x, @y, 1, 0)
+        @health_meter.sdraw_rot(@x, @y - @@image.height / 2 - 5, 1, 0)
     end
 end

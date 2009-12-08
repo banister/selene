@@ -106,14 +106,14 @@ module Tasks
         @_tasks_ ||= {}
 
         raise ArgumentError, "must provide a name" if !options[:name]
-        
+ 
         task = {
             :init_time => Time.now.to_f,
             :wait_time => timeout,
             :block => block,
         }
-        
-        if !@_tasks_[options[:name]] || !options[:preserve]
+
+        if !task_exists?(options[:name]) || !options[:preserve]
             @_tasks_[options[:name]] = task
         end
     end

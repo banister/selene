@@ -15,6 +15,10 @@ class TurretManager
     def each(&block)
         @turrets.each &block
     end
+
+    def find(&block)
+        @turrets.find &block
+    end
     
     def reset
         @turrets = []

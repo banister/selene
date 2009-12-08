@@ -38,12 +38,8 @@ class Meteor
         if @playgame.map.solid?(x, y) then
             @playgame.map.blast(x, y, @blast_size)
             @collide_sound.play(1.0)
+            smoke_cloud
             
-            5.times {
-                @playgame.objects << Particle.new(@window, @x - 25 + rand(51),
-                                                @y - 25 + rand(51))
-            }
-
             false
         elsif @playgame.lander.shield_intersect?(self) then
             @playgame.lander.shield_hit(self)
@@ -63,6 +59,13 @@ class Meteor
 
     def warp(x, y)
         @x, @y = x, y
+    end
+
+    def smoke_cloud
+        5.times {
+            @playgame.objects << Particle.new(@window, @x - 25 + rand(51),
+                                              @y - 25 + rand(51))
+        }
     end
 
     def draw
