@@ -2,7 +2,7 @@ class PlayGame
     include Tasks
     
     attr_accessor :objects
-    attr_reader :map, :lander, :platform_manager, :meteor_manager, :turret_manager, :level, :wind, :difficulty
+    attr_reader :map, :lander, :platform_manager, :meteor_manager, :turret_manager, :level, :wind, :difficulty, :powerup_manager
     
     
     Gravity = 0.002
@@ -51,6 +51,7 @@ class PlayGame
         @objects << @platform_manager
         @objects << @meteor_manager
         @objects << @turret_manager
+        @objects << @powerup_manager
 
         place_platforms
         place_astronauts
@@ -92,7 +93,6 @@ class PlayGame
     def update
         check_tasks
  
-        @powerup_manager.update
         @lander.update
 
         @objects.reject! { |m| m.update == false }
@@ -101,7 +101,7 @@ class PlayGame
         if @lander.landed then
  ###           @triumph_sound.play(1.0)
 #            @level_complete = true
-        elsif @lander.died then
+        elsif !@lander.active then
             @crash_sound.play(1.0)
             @level_fail = true
         end
@@ -115,8 +115,12 @@ class PlayGame
         @lander.draw
         @objects.each { |m| m.draw }
 
-        @font.draw("screen: #{@map.current_screen}", 340, 10, 3, 1.0, 1.0,
-                   @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)
+        @font.draw("astronaut count: #{@lander.astronaut_count}", 340, 10, 3, 1.0, 1.0,
+                   0xffffff00)
+
+        @font.draw("astronauts home: #{@lander.safe_astronaut_count}", 640, 10, 3, 1.0, 1.0,
+                   0xffffff00)
+        
 
         @font.draw("fuel: #{@lander.fuel}", 840, 10, 3, 1.0, 1.0,
                    @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)

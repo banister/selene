@@ -58,7 +58,7 @@ class PowerUp
         @color.alpha -=5 if @fade_out
         @theta += @dtheta
         @y = @y_anchor + 2 * Math::sin(@theta * 10 * Math::PI / 180)
-        @image.draw_rot(@x, @y, 0, 0, 0.5, 0.5, 1, 1, @color)
+        @image.sdraw_rot(@x, @y, 0, 0, 0.5, 0.5, 1, 1, @color)
     end
 end
 
@@ -103,6 +103,26 @@ class Freeze < PowerUp
         set_image Gosu::Image.new(@window, "#{MEDIA}/freeze.png")
         set_pickup_sound Gosu::Sample.new(@window, "#{MEDIA}/freeze.ogg")
         action { @playgame.freeze_movement }
+    end
+end
+
+class Flame < PowerUp
+    def configure
+        set_image Gosu::Image.new(Win, "#{MEDIA}/flame.png")
+        action { @playgame.lander.extend Laser }
+    end
+
+    module Laser
+        def handle_controls
+            super
+            x = @playgame.lander.x
+            y = @playgame.lander.y + @playgame.lander.height / 2 + 4
+            if @window.button_down? Gosu::KbSpace
+                before(0.001, :name => :laser_timeout, :preserve => true) do
+                    @playgame.objects << Bullet.new(@playgame, x, y, -3, 0)
+                end
+            end
+        end
     end
 end
 

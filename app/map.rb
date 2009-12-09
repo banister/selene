@@ -30,7 +30,7 @@ class Map
         @blank_screen = TexPlay.create_blank_image(@window, WIDTH, HEIGHT)
         @moonscape = @@land_textures.random
 
-        5.times { create_screen }
+        3.times { create_screen }
     end
 
     def screen_images
@@ -139,10 +139,10 @@ class Map
         @nebula.draw_rot(512, 384, 0, @nebula_theta)
         #white_out
 
-        # MELTLOL
-#         x = rand(current_screen.width)
-#         y = rand(current_screen.height)
-        #         current_screen.splice(current_screen, x, y + 1, :crop => [x, y, x + 110, y + 110] )
+#         MELTLOL
+#          x = rand(current_screen.width)
+#          y = rand(current_screen.height)
+#                  current_screen.splice(current_screen, x, y + 1, :crop => [x, y, x + 110, y + 110] )
         @screens.each_with_index { |v, i|
             v.sdraw(i * (WIDTH - 1), 0, 1)
         }

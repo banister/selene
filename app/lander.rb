@@ -2,13 +2,13 @@ class Lander
     include BoundingBox
     include Tasks
     
-    attr_accessor :landed
-    attr_reader :fuel, :width, :height, :vel, :died, :da, :x, :y, :vx, :vy
+    attr_accessor :landed, :active
+    attr_reader :fuel, :width, :height, :vel, :da, :x, :y, :vx, :vy, :astronaut_count, :safe_astronaut_count
     attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
     
     CRASH_VELOCITY = 0.6
-    FUEL = 2000000
-    HEALTH = 100000
+    FUEL = 1000
+    HEALTH = 1000
     SHIELD_RADIUS = 180
     SHIELD_TIMEOUT = 60
     MAX_CAREEN_ANGLE = 60
@@ -24,6 +24,7 @@ class Lander
         @da = 0.1
         @window = window
         @health = HEALTH
+        @safe_astronaut_count = @astronaut_count = 0
         @health_meter = HealthMeter.new
         @playgame = playgame
         @crash_velocity = CRASH_VELOCITY - @playgame.level / 60.0
@@ -34,7 +35,7 @@ class Lander
         @crash_velocity = 0.17 if @crash_velocity < 0.17
 
         self.landed = false
-        @died = false
+        @active = true
         
         @jet_color = NORMAL_JET_COLOR
 
@@ -52,6 +53,8 @@ class Lander
         @height = @image.height
         @width = @image.width
         @theta = 0
+
+        extend Flame::Laser
     end
 
     def init_sounds
@@ -111,12 +114,12 @@ class Lander
         
         if terrain_touch_down?
             if vel > @crash_velocity then
-                @died = true
+                @active = false
             end
         elsif crashed?
-            @died = true
+            @active = false
         elsif @health <= 0 then
-            @died = true
+            @active = false
             #         elsif (@x > 1070 || @x < -30 || @y > 788) && @fuel <= 0 then
             #             @died = true
             #             @scream_sound.play(1.0)
@@ -136,6 +139,23 @@ class Lander
             @playgame.map.solid?(@x + @width / 4, @y) || @playgame.map.solid?(@x - @width / 4, @y) && self.vel > @crash_velocity
     end
 
+    def got_astronaut
+        @astronaut_count += 1
+    end
+
+    def unload_astronaut
+        if @astronaut_count >= 1
+            @astronaut_count -= 1
+            @safe_astronaut_count += 1
+        end
+    end
+
+    def unload_astronauts_over_time
+        after(2, :name => :astronaut_unload_timeout, :preserve => true) {
+            unload_astronaut
+        }
+    end    
+    
     def left_foot
         [@x + @width / 2, @y + @height / 2]                
     end
@@ -157,7 +177,7 @@ class Lander
         @playgame.platform_manager.each { |platform|
             if platform.solid?(*left_foot) &&
                     platform.solid?(*right_foot)
-                got_shield(0.1)
+                platform.landing_action(self)
                 return true
             end
         }
@@ -263,6 +283,12 @@ class Lander
 
     def refuel(v=100)
         @fuel += v
+    end
+
+    def refuel_over_time
+        before(0.01, :name => :refuel_timeout, :preserve => true) {
+            refuel(2)
+        }
     end
 
     def got_quantum_engine

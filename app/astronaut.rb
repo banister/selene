@@ -33,7 +33,8 @@ class Astronaut
             @vy = 0
         end
 
-        if @playgame.lander.landed && intersect?(@playgame.lander) 
+        if @playgame.lander.landed && intersect?(@playgame.lander)
+            @playgame.lander.got_astronaut
             false
         elsif @playgame.lander.landed
             dir = (@playgame.lander.x - x).sgn

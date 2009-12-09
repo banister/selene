@@ -12,7 +12,7 @@ class Bullet
         @vx = vel * Math::cos(angle.to_radians)
         @vy = vel * Math::sin(angle.to_radians)        
 
-        @@image ||= TexPlay.create_image(Win, 10, 10).circle 5, 5, 4, :color => :red, :fill => true
+        @@image ||= TexPlay.create_blank_image(Win, 10, 10).circle 5, 5, 4, :color => :red, :fill => true
         set_bounding_box(@@image.width, @@image.height)
     end
 

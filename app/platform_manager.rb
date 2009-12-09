@@ -7,7 +7,8 @@ class PlatformManager
     end
 
     def add_platform(options = {})
-        plat = Platform.new(@window, @playgame, options[:x], options[:y])
+        plat_class = options[:type] || [YellowPlatform, RedPlatform, GreenPlatform, BluePlatform].random
+        plat = plat_class.new(Win, @playgame, options[:x], options[:y])
         plat.set_into_place
         @platforms << plat
     end

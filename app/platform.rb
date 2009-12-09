@@ -9,24 +9,24 @@ class Platform
         @window = window
         @playgame = playgame
 
-        @@image ||= Gosu::Image.new(@window, "#{MEDIA}/platform.png")
+        config
 
-        set_bounding_box(@@image.width, @@image.height)
+        set_bounding_box(@image.width, @image.height)
     end
 
     def image
-        @@image
+        @image
     end
 
     def set_into_place
-        while !@playgame.map.solid?(self.x + (self.width / 2), self.y + (self.height))
+        while !@playgame.map.solid?(self.x + (self.width / 2), self.y + (self.height) - 10)
             break if self.y > Map::HEIGHT
             self.y += 1
         end
     end
 
     def update
-        while !@playgame.map.solid?(self.x + (self.width / 2), self.y + (self.height))
+        while !@playgame.map.solid?(self.x + (self.width / 2), self.y + (self.height) - 10)
             break if self.y > Map::HEIGHT
             self.y += 1
         end
@@ -41,12 +41,15 @@ class Platform
         image.get_pixel(x, y) && image.get_pixel(x, y)[3] != 0
     end
 
+    def landing_action(lander)
+    end
+
     def width
-        @@image.width
+        @image.width
     end
 
     def height
-        @@image.height
+        @image.height
     end
 
     def warp(x, y)
@@ -54,6 +57,58 @@ class Platform
     end
 
     def draw
-        @@image.sdraw(@x, @y, 1)
+        @image.sdraw(@x, @y, 1)
+    end
+end
+
+class YellowPlatform < Platform
+    def self.image
+        @image ||= Gosu::Image.new(Win, "#{MEDIA}/yellowplatform.png")
+    end
+    
+    def config
+        @image = self.class.image
+    end
+
+    def landing_action(lander)
+        lander.got_shield(1)
+    end
+end
+
+class GreenPlatform < Platform
+    def self.image
+        @image ||= Gosu::Image.new(Win, "#{MEDIA}/greenplatform.png")
+    end
+    
+    def config
+        @image = self.class.image
+    end
+
+    def landing_action(lander)
+        lander.unload_astronauts_over_time
+    end
+end
+
+class RedPlatform < Platform
+    def self.image
+        @image ||= Gosu::Image.new(Win, "#{MEDIA}/redplatform.png")
+    end
+        
+    def config
+        @image = self.class.image
+    end
+end
+
+class BluePlatform < Platform
+    def self.image
+        @image ||= Gosu::Image.new(Win, "#{MEDIA}/blueplatform.png")
+    end
+    
+    def config
+        @image = self.class.image
+    end
+
+    def landing_action(lander)
+        lander.refuel_over_time
     end
 end

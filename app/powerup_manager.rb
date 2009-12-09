@@ -3,41 +3,53 @@ class PowerUpManager
         @window = window
         @playgame = playgame
         @difficulty = @playgame.difficulty
-        @on = false
-    end
-
-    def start
-        @on = true
-        self
-    end
-
-    def stop
-        @on = false
-        self
+        @powerups = []
     end
 
     def reset
-        @playgame.objects.delete_if { |v| v.is_a?(PowerUp) }
+        @powerups = []
         self
     end
 
-    def update
-        return if !@on
+    def add_powerup(options = {})
+        @powerups << random_powerup.new(Win, @playgame, options[:x], options[:y])
+    end
+
+    def random_powerup
+        r = 1.0 / 4
         
-        if rand < @difficulty.refuel_factor then
-            @playgame.objects << RocketJuice.new(@window, @playgame, 1024 * rand, rand(400))
+        if rand < r
+            return RocketJuice
         end
 
-        if rand < @difficulty.quantum_engine_factor then
-            @playgame.objects << QuantumEngine.new(@window, @playgame, 1024 * rand, rand(400))
+        if rand < r
+            return QuantumEngine
         end
 
-        if rand < @difficulty.shield_factor then
-            @playgame.objects << Shield.new(@window, @playgame, 1024 * rand, rand(400))
+        if rand < r
+            return Shield
         end
 
-        if rand < @difficulty.freeze_factor then
-            @playgame.objects << Freeze.new(@window, @playgame, 1024 * rand, rand(400))
+        if rand < r
+            return Flame
         end
+
+        if rand < r
+            return Freeze
+        end
+
+        RocketJuice
+    end
+
+    def update
+        @powerups.delete_if { |powerup|
+            powerup.update == false
+        }
+    end
+
+    def draw
+        @powerups.each {  |powerup|
+            powerup.draw
+        }
     end
 end    

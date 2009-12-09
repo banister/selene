@@ -6,7 +6,8 @@ class Turret
     HEALTH = 100
     Range = 500
     
-    attr_accessor :x, :y, :health
+    attr_accessor :x, :y, :health, :active
+    
 
     def initialize(window, playgame, x, y)
         @x, @y = x, y
@@ -14,6 +15,7 @@ class Turret
         @playgame = playgame
         @health = HEALTH
         @health_meter = HealthMeter.new
+        @active = true
 
         @@image ||= Gosu::Image.new(@window, "#{MEDIA}/turret.png")
         @image = @@image
@@ -41,6 +43,7 @@ class Turret
     end
 
     def update
+        return false if !active
         check_tasks
         while !@playgame.map.solid?(self.x, self.y + (self.height / 2))
             break if self.y > Map::HEIGHT
@@ -85,16 +88,22 @@ class Turret
         true
     end
 
-
     def object_hit(obj, damage)
         @image = @image.dup if @image == @@image
         self.health -= damage
+
+        if health <= 0
+            self.active = false
+            @playgame.powerup_manager.add_powerup(:x => @x, :y => @y)
+        end
 
         chunk_size = 40
         x = rand(@image.width)
         y = rand(@image.height)
         chunk = [x, y, x + chunk_size, y + chunk_size]
-         @image.circle x, y, chunk_size / 2, :color_control => { :mult => [0.8, 0.8, 0.8, 1] }, :fill => true
+        @image.circle x, y, chunk_size / 2,
+        :color_control => { :mult => [0.8, 0.8, 0.8, 1] }, :fill => true
+        
         @image.splice @image, x - 4 + rand(7), y - 4 + rand(7),
         :crop => chunk,
          :color_control => proc { |c, c1|
