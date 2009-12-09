@@ -20,7 +20,7 @@ require 'particle'
 require 'difficulty'
 require 'playgame'
 require 'getready'
-require 'devil/gosu'
+#require 'devil/gosu'
 
 
 class W < Gosu::Window
@@ -56,7 +56,7 @@ class W < Gosu::Window
             @state = GetReady.new(self, @level, :failure)
 
         elsif button_down?(Gosu::KbEscape)
-            screenshot.save("selene.jpg")
+ #           screenshot.save("selene.jpg")
             exit
         end
 
