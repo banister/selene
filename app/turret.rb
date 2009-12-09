@@ -75,7 +75,7 @@ class Turret
             # shoot if lined up
             if (@barrel_theta - target_theta).abs < 1 
                 before(2, :name => :bullet_timeout, :preserve => true) do
-                    @playgame.objects << Bullet.new(@playgame, *barrel_tip, 2, @barrel_theta)
+                    @playgame.objects << Bullet.new(@playgame, barrel_tip[0], barrel_tip[1], 2, @barrel_theta)
                 end
             end
         else
