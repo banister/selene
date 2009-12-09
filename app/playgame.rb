@@ -9,6 +9,7 @@ class PlayGame
     LandGravity = 0.1
     Wind_Velocity = 0.005
     FREEZE_MOVEMENT_TIMEOUT = 20
+    AstronautCount = 5
 
     def initialize(window, level)
         @window = window
@@ -65,7 +66,7 @@ class PlayGame
     end
 
     def place_astronauts
-        10.times { 
+        AstronautCount.times { 
             @astronaut_manager.add_astronaut :x => rand(@map.total_map_width), :y => 100
         }
     end
@@ -98,9 +99,9 @@ class PlayGame
         @objects.reject! { |m| m.update == false }
         
 
-        if @lander.landed then
- ###           @triumph_sound.play(1.0)
-#            @level_complete = true
+        if @lander.safe_astronaut_count == AstronautCount then
+            @triumph_sound.play(1.0)
+            @level_complete = true
         elsif !@lander.active then
             @crash_sound.play(1.0)
             @level_fail = true

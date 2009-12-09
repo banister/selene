@@ -56,7 +56,7 @@ class W < Gosu::Window
             @state = GetReady.new(self, @level, :failure)
 
         elsif button_down?(Gosu::KbEscape)
-            screenshot.save("selene.jpg", :quality => 80)
+            screenshot.save("selene.jpg")
             exit
         end
 
