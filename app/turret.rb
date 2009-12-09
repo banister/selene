@@ -16,6 +16,7 @@ class Turret
         @health_meter = HealthMeter.new
 
         @@image ||= Gosu::Image.new(@window, "#{MEDIA}/turret.png")
+        @image = @@image
         @@barrel ||= Gosu::Image.new(@window, "#{MEDIA}/barrel.png")
         @barrel_theta = 0
 
@@ -23,7 +24,7 @@ class Turret
     end
 
     def image
-        @@image
+        @image
     end
 
     def set_into_place
@@ -65,7 +66,7 @@ class Turret
 
     def track_target
 
-        if target_in_range?
+        if target_in_range? && health > 0
             target_theta = Math.asin(target_vector[0]).to_degrees
 
             # shoot if lined up
@@ -84,8 +85,25 @@ class Turret
         true
     end
 
+
     def object_hit(obj, damage)
+        @image = @image.dup if @image == @@image
         self.health -= damage
+
+        chunk_size = 40
+        x = rand(@image.width)
+        y = rand(@image.height)
+        chunk = [x, y, x + chunk_size, y + chunk_size]
+         @image.circle x, y, chunk_size / 2, :color_control => { :mult => [0.8, 0.8, 0.8, 1] }, :fill => true
+        @image.splice @image, x - 4 + rand(7), y - 4 + rand(7),
+        :crop => chunk,
+         :color_control => proc { |c, c1|
+             c1[0] /= 1.1
+             c1[1] /= 1.1 
+             c1[2] /= 1.1
+            
+             c1
+         }
     end
     
     def solid?(x, y)
@@ -98,11 +116,11 @@ class Turret
     end
 
     def width
-        @@image.width
+        @image.width
     end
 
     def height
-        @@image.height
+        @image.height
     end
 
     def warp(x, y)
@@ -110,7 +128,7 @@ class Turret
     end
 
     def barrel_tip
-        y = @y - @@image.height / 2 + 4
+        y = @y - @image.height / 2 + 4
         barrel_length = @@barrel.height
         
         [@x + barrel_length * target_vector[0],
@@ -118,8 +136,8 @@ class Turret
     end
 
     def draw
-        @@barrel.sdraw_rot(@x, @y - @@image.height / 2 + 4, 1, @barrel_theta, 0.5, 1)
-        @@image.sdraw_rot(@x, @y, 1, 0)
-        @health_meter.sdraw_rot(@x, @y - @@image.height / 2 - 5, 1, 0)
+        @@barrel.sdraw_rot(@x, @y - @image.height / 2 + 4, 1, @barrel_theta, 0.5, 1)
+        @image.sdraw_rot(@x, @y, 1, 0)
+        @health_meter.sdraw_rot(@x, @y - @image.height / 2 - 5, 1, 0)
     end
 end
