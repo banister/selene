@@ -297,7 +297,7 @@ class Lander
                                            :color => [255, 100, 100, 255])
     end
 
-    def refuel(v=100)
+    def refuel(v=300)
         @fuel += v
     end
 
@@ -324,7 +324,7 @@ class Lander
         @vx += dvx + deviance / 3 * rand 
         @vy += dvy + deviance / 3 * rand 
         
-        @fuel_sound.play(0.05) if @fuel <= 20
+        @fuel_sound.play(0.05) if @fuel <= 100
         @fuel -= 1 * (@da * 10)
 
         if dvx.sgn != 0 && !landed

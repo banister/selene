@@ -10,8 +10,11 @@ class HealthMeter
 
     # health must between 0 and 1.0
     def update_health_status(health)
-        return if health < 0
+        health = 0.0 if health < 0
+        health = 1.0 if health > 1
         
+        @img.rect 1, 1, @img.width - 2, @img.height - 2,  :fill => true, :color => :alpha
+
         c = []
 
         # interpolate between green and red to indicate health status
@@ -20,9 +23,7 @@ class HealthMeter
         }
         c[3] = 1.0
 
-        @img.fill(1, 1, :color => c)
-        @img.rect 1 + (@width - 3) * health, 1, @width - 2, @height - 2, :fill => true,
-        :color => :alpha
+        @img.rect 1, 1, 1 + (@img.width - 3) * health, @img.height - 2,  :fill => true, :color => c
     end
 
     def draw(*args)

@@ -67,7 +67,7 @@ class RocketJuice < PowerUp
     def configure
         set_image Gosu::Image.new(@window, "#{MEDIA}/rockjuice.png")
 
-        action { @playgame.lander.refuel }
+        action { @playgame.lander.refuel(300) }
     end
 end
 
