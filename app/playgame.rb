@@ -119,7 +119,7 @@ class PlayGame
             @level_fail = true
         end
 
-        Win.screen_x +=  @lander.vx
+#        Win.screen_x =  @lander.x
 #        Win.screen_y +=  @lander.vy
     end
     

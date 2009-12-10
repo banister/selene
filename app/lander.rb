@@ -48,7 +48,7 @@ class Lander
         set_bounding_box(@image.width, @image.height)
 
         # TEMPORARY SOLUTION !!
-        @shield_image = TexPlay::create_blank_image(@window, SHIELD_RADIUS * 2, SHIELD_RADIUS * 2)
+        @shield_image = TexPlay.create_blank_image(@window, SHIELD_RADIUS * 2, SHIELD_RADIUS * 2)
         @shield_image.circle SHIELD_RADIUS, SHIELD_RADIUS, SHIELD_RADIUS, :color => [0.1, 0.1, 1, 0.1], :fill => true
         # END TEMPORARY SOLUTION
 
@@ -83,21 +83,6 @@ class Lander
         end
     end
 
-    def screen_at
-        case 
-        when @x < -30
-            :left
-        when @x > 1070
-            :right
-        when @y > 788
-            :bottom
-        when @y < -30
-            :top
-        else
-            :current
-        end
-    end
-
     def update
         handle_controls
         check_tasks
@@ -109,11 +94,13 @@ class Lander
             end
             @vy = 0 if @vy >= 0
             @vx = 0
-            @y += @vy
+            self.y += @vy
             self.landed = true
         else
-            @x += @vx
-            @y += @vy 
+            self.x += @vx
+            Win.screen_x += @vx
+            
+            self.y += @vy
             @vy += PlayGame::Gravity
             
             if !@has_precision_controls
@@ -254,14 +241,10 @@ class Lander
             c1
         }
 
-        debris = TexPlay::create_blank_image(@window, chunk_size, chunk_size)
+        debris = TexPlay.create_blank_image(@window, chunk_size, chunk_size)
         debris.splice @image, 0, 0, :crop => chunk
 
-        @playgame.objects <<  Particle.new(@window, @x, @y)#  << Particle.new(@window, @x, @y,
-        #                                                                             :image => debris,
-        #                                                                             :direction => :random,
-        #                                                                             :rotate => true,
-        #                                                                             :lifespan => 1)
+        @playgame.objects <<  Particle.new(@window, @x, @y)
 
         if(!meteor.is_a?(Wreckage))
             start_dist = Math::hypot(@image.width / 2, @image.height / 2) + 2
@@ -383,8 +366,8 @@ class Lander
         shake = 0
         shake = (1 - @health.to_f / HEALTH) * 20 if @health < HEALTH
 
-        @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2, 0.5, 0.5, 1, 1, @cloaked ? 0x80ffffff : 0xffffffff
-        #@image.sdraw_rot @x, @y, 1, @theta + rand(shake) - shake / 2
+        @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2, 0.5, 0.5, 1, 1,
+        @cloaked ? 0x80ffffff : 0xffffffff
         @health_meter.draw_rot @xpos, @y - 50, 1, 0
     end
 end
