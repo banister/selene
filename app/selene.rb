@@ -27,7 +27,8 @@ class W < Gosu::Window
     attr_accessor :screen_x, :screen_y
     
     def initialize
-        super(Map::WIDTH, Map::HEIGHT, false, 20)
+        fullscreen = ARGV[0] ? true : false
+        super(Map::WIDTH, Map::HEIGHT, fullscreen, 20)
         
         # starting level
         @level = 10

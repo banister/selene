@@ -7,7 +7,13 @@ class PlatformManager
     end
 
     def add_platform(options = {})
+
+        # if type isn't provided choose a random Platform
         plat_class = options[:type] || [YellowPlatform, RedPlatform, GreenPlatform, BluePlatform].random
+
+        # if type is an array of Platform types, then select one randomly from the array
+        plat_class = plat_class.random if plat_class.is_a?(Array)
+        
         plat = plat_class.new(Win, @playgame, options[:x], options[:y])
         plat.set_into_place
         @platforms << plat

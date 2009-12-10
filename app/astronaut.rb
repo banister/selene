@@ -49,10 +49,8 @@ class Astronaut
     def try_walk(dir)
         @dir = dir
         @y -= 2
-        if !@playgame.map.solid?(x + dir, y) &&
-                !@playgame.map.solid?(x - dir, y)
+        if !@playgame.map.solid?(x + dir, y) 
             @x += dir / 2.0
-
         end
         2.times { @y += 1 unless @playgame.map.solid?(x, y + (self.height / 2) + 1) } 
     end

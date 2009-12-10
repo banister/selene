@@ -53,8 +53,6 @@ class Lander
         @height = @image.height
         @width = @image.width
         @theta = 0
-
-        extend Flame::Laser
     end
 
     def init_sounds
@@ -70,6 +68,17 @@ class Lander
         move_right if @window.button_down? Gosu::KbRight
         move_up if @window.button_down? Gosu::KbUp
         move_down if @window.button_down? Gosu::KbDown
+
+        if @window.button_down? Gosu::KbSpace
+            laser_fire
+        end
+    end
+
+    def laser_fire
+        ty = @playgame.lander.y + @playgame.lander.height / 2 + 4
+        before(2, :name => :laser_timeout, :preserve => true) do
+            @playgame.objects << Bullet.new(@playgame, x, ty, -3, 0)
+        end
     end
 
     def screen_at
@@ -191,7 +200,14 @@ class Lander
 
     def health=(h)
         @health = h
+        h = HEALTH if h > HEALTH
         @health_meter.update_health_status(h.to_f / HEALTH)
+    end
+
+    def heal_over_time
+        before(0.01, :name => :health_timeout, :preserve => true) {
+            self.health += 2
+        }
     end
 
     def object_hit(meteor, damage, impulse_factor = 1)
@@ -302,8 +318,8 @@ class Lander
 
     def accel(dvx, dvy)
         return if @fuel <= 0 
-
-        deviance = (1 - (@health / HEALTH.to_f)) / 4.0
+        deviance = 0
+        deviance = (1 - (@health / HEALTH.to_f)) / 4.0 if @health < HEALTH
 
         @vx += dvx + deviance / 3 * rand 
         @vy += dvy + deviance / 3 * rand 
@@ -354,7 +370,8 @@ class Lander
     
     def draw
         # shake the craft when damaged
-        shake = (1 - @health.to_f / HEALTH) * 20
+        shake = 0
+        shake = (1 - @health.to_f / HEALTH) * 20 if @health < HEALTH
         
         @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2
         #@image.sdraw_rot @x, @y, 1, @theta + rand(shake) - shake / 2

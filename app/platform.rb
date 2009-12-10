@@ -97,6 +97,10 @@ class RedPlatform < Platform
     def config
         @image = self.class.image
     end
+
+    def landing_action(lander)
+        lander.heal_over_time
+    end
 end
 
 class BluePlatform < Platform

@@ -109,18 +109,14 @@ end
 class Flame < PowerUp
     def configure
         set_image Gosu::Image.new(Win, "#{MEDIA}/flame.png")
-        action { @playgame.lander.extend Laser }
+        action { @playgame.lander.extend Laser if !@playgame.lander.is_a?(Laser) }
     end
 
     module Laser
-        def handle_controls
-            super
-            x = @playgame.lander.x
-            y = @playgame.lander.y + @playgame.lander.height / 2 + 4
-            if @window.button_down? Gosu::KbSpace
-                before(0.001, :name => :laser_timeout, :preserve => true) do
-                    @playgame.objects << Bullet.new(@playgame, x, y, -3, 0)
-                end
+        def laser_fire
+            ty = @playgame.lander.y + @playgame.lander.height / 2 + 4
+            before(0.001, :name => :laser_timeout, :preserve => true) do
+                @playgame.objects << Bullet.new(@playgame, x, ty, -3, 0)
             end
         end
     end
