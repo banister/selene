@@ -3,6 +3,8 @@ class Astronaut
     
     attr_accessor :x, :y
 
+    Range = 500
+
     def initialize(window, playgame, x, y)
         @x, @y = x, y
         @vx, @vy = 0, 0
@@ -26,6 +28,11 @@ class Astronaut
         end
     end
 
+    def lander_in_range?
+        dx = @playgame.lander.x - @x
+        dx.abs <= Range
+    end
+    
     def update
         if !@playgame.map.solid?(self.x, self.y + (self.height / 2))
             @vy += PlayGame::LandGravity
@@ -37,7 +44,7 @@ class Astronaut
         if @playgame.lander.landed && intersect?(@playgame.lander)
             @playgame.lander.got_astronaut
             false
-        elsif @playgame.lander.landed
+        elsif @playgame.lander.landed && lander_in_range?
             dir = (@playgame.lander.x - x).sgn
             try_walk(dir) 
         end
@@ -50,9 +57,7 @@ class Astronaut
     def try_walk(dir)
         @dir = dir
         @y -= 2
-        if !@playgame.map.solid?(x + dir, y) 
-            @x += dir / 2.0
-        end
+        @x += dir / 2.0 if !@playgame.map.solid?(x + dir, y) 
         2.times { @y += 1 unless @playgame.map.solid?(x, y + (self.height / 2) + 1) } 
     end
 

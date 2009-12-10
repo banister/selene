@@ -188,8 +188,7 @@ class Lander
     end
 
     def health=(h)
-        @health = h
-        h = HEALTH if h > HEALTH
+        @health = h if @health <= 3 * HEALTH
         @health_meter.update_health_status(h.to_f / HEALTH)
     end
 
@@ -208,7 +207,8 @@ class Lander
         # ignore the case for Wreckage
         if !meteor.is_a?(Wreckage)
 
-            # if the meteor is going in the direction that ship is going and it's in FRONT of ship, then significantly reduce velocity (give velocity to meteor)
+            # if the meteor is going in the direction that ship is going and it's in FRONT of ship
+            # then significantly reduce velocity (give velocity to meteor)
             if meteor.vx.sgn == @vx.sgn && (meteor.x - @x).sgn == @vx.sgn
                 @vx /= 3
 
@@ -283,7 +283,7 @@ class Lander
     end
 
     def refuel(v=300)
-        @fuel += v
+        @fuel += v if @fuel <= 3 * FUEL
     end
 
     def refuel_over_time
@@ -293,7 +293,7 @@ class Lander
     end
 
     def got_quantum_engine
-        extend QuantumEngine::PrecisionControl
+        extend QuantumEngine::PrecisionControl if !self.is_a? QuantumEngine::PrecisionControl
 
         refuel(1000)
 

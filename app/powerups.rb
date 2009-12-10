@@ -1,4 +1,4 @@
-# powerup abstract base class
+# powerup base class
 class PowerUp
     include BoundingBox
     include Tasks
@@ -116,7 +116,7 @@ end
 class Flame < PowerUp
     def configure
         set_image Gosu::Image.new(Win, "#{MEDIA}/flame.png")
-        action { @playgame.lander.extend Laser if !@playgame.lander.is_a?(Laser) }
+        action { @playgame.lander.extend Laser if !@playgame.lander.is_a?(Flame::Laser) }
     end
 
     module Laser

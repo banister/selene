@@ -2,7 +2,7 @@ require 'rake/clean'
 
 $dlext = Config::CONFIG['DLEXT']
 
-CLEAN.include("**/*.#{$dlext}", "**/*.o")
+CLEAN.include("**/*.#{$dlext}", "**/*.o", "**/#*.*", "**/.#*.*")
 CLOBBER.include("**/*~", "**/*#*", "**/*.log")
 
 task :default => [:texplay]
