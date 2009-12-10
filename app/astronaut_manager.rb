@@ -10,7 +10,7 @@ class AstronautManager
         astro.set_into_place
         @astronauts << astro
     end
-    
+
     def reset
         @astronauts = []
         self
