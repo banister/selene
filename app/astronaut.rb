@@ -8,6 +8,7 @@ class Astronaut
         @vx, @vy = 0, 0
         @window = window
         @playgame = playgame
+        @dir = 1
 
         @@image ||= Gosu::Image.new(@window, "#{MEDIA}/mmstd.png")
 
@@ -77,6 +78,6 @@ class Astronaut
     end
 
     def draw
-        @@image.sdraw_rot(@x, @y, 1, 0)
+        @@image.sdraw_rot(@x, @y, 1, 0, 0.5, 0.5, @dir)
     end
 end

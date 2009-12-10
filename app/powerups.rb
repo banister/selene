@@ -106,6 +106,13 @@ class Freeze < PowerUp
     end
 end
 
+class Cloaking < PowerUp
+    def configure
+        set_image Gosu::Image.new(@window, "#{MEDIA}/invisible.png")
+        action { @playgame.lander.got_cloaking }
+    end
+end
+
 class Flame < PowerUp
     def configure
         set_image Gosu::Image.new(Win, "#{MEDIA}/flame.png")

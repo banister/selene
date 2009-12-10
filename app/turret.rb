@@ -21,6 +21,7 @@ class Turret
         @image = @@image
         @@barrel ||= Gosu::Image.new(@window, "#{MEDIA}/barrel.png")
         @barrel_theta = 0
+        @dbx = @dby = 0
 
         set_bounding_box(@@image.width, @@image.height)
     end
@@ -53,6 +54,7 @@ class Turret
         @playgame.lander.impulse(0, -0.2) if intersect?(@playgame.lander)
 
         track_target
+        correct_barrel
     end
 
     def target_vector
@@ -64,7 +66,7 @@ class Turret
     def target_in_range?
         dy = @playgame.lander.y - @y
         dx = @playgame.lander.x - @x
-        dy < 0 && dx.abs <= Range
+        dy < 0 && dx.abs <= Range && !@playgame.lander.cloaked
     end
 
     def track_target
@@ -74,9 +76,7 @@ class Turret
 
             # shoot if lined up
             if (@barrel_theta - target_theta).abs < 1 
-                before(2, :name => :bullet_timeout, :preserve => true) do
-                    @playgame.objects << Bullet.new(@playgame, barrel_tip[0], barrel_tip[1], 2, @barrel_theta)
-                end
+                shoot
             end
         else
             target_theta = 0
@@ -86,6 +86,27 @@ class Turret
         @barrel_theta += (target_theta - @barrel_theta).sgn
         
         true
+    end
+
+    def shoot
+        before(2, :name => :bullet_timeout, :preserve => true) do
+            @playgame.objects << Bullet.new(@playgame, barrel_tip[0], barrel_tip[1], 2, @barrel_theta)
+#            recoil
+        end        
+    end
+
+    def recoil
+        ty = @y - @image.height / 2 + 4 
+        recoil_vector = Vector[barrel_tip[0] - @x, barrel_tip[1] - ty].normalize
+        @dbx = -recoil_vector[0] * 28
+        @dby = -recoil_vector[1] * 28
+    end
+
+    def correct_barrel
+        ty = @y - @image.height / 2 + 4 
+        recoil_vector = Vector[barrel_tip[0] - @x, barrel_tip[1] - ty].normalize
+ #       @dbx += recoil_vector[0].sgn * 0.12  
+  #      @dby += recoil_vector[1].sgn * 0.12
     end
 
     def object_hit(obj, damage)
@@ -145,7 +166,7 @@ class Turret
     end
 
     def draw
-        @@barrel.sdraw_rot(@x, @y - @image.height / 2 + 4, 1, @barrel_theta, 0.5, 1)
+        @@barrel.sdraw_rot(@x + @dbx, @y - @image.height / 2 + 4 + @dby, 1, @barrel_theta, 0.5, 1)
         @image.sdraw_rot(@x, @y, 1, 0)
         @health_meter.sdraw_rot(@x, @y - @image.height / 2 - 5, 1, 0)
     end

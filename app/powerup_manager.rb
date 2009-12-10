@@ -38,6 +38,11 @@ class PowerUpManager
             return Freeze
         end
 
+        if rand < r
+            return Cloaking
+        end
+        
+
         RocketJuice
     end
 

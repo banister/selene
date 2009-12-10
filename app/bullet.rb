@@ -46,7 +46,7 @@ class Bullet
             false
 
         # screen?
-        elsif @x >= @playgame.map.total_map_width || @y < 0 || @x < 0
+        elsif @x >= @playgame.map.total_map_width || @y < 0 || @x < 0 || @y > Map::HEIGHT + 50
             false
 
         # terrain?

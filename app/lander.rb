@@ -3,7 +3,8 @@ class Lander
     include Tasks
     
     attr_accessor :landed, :active
-    attr_reader :fuel, :width, :height, :vel, :da, :x, :y, :vx, :vy, :astronaut_count, :safe_astronaut_count
+    attr_reader :fuel, :width, :height, :vel, :da, :x, :y, :vx, :vy
+    attr_reader :astronaut_count, :safe_astronaut_count, :cloaked
     attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
     
     CRASH_VELOCITY = 0.6
@@ -27,6 +28,7 @@ class Lander
         @safe_astronaut_count = @astronaut_count = 0
         @health_meter = HealthMeter.new
         @playgame = playgame
+        @cloaked = false
         @crash_velocity = CRASH_VELOCITY - @playgame.level / 60.0
         @fuel = FUEL - @playgame.level * 2
 
@@ -316,6 +318,14 @@ class Lander
         @has_precision_controls = true
     end
 
+
+    def got_cloaking
+        @cloaked = true
+        after(20, :name => :cloaking_timeout) {
+            @cloaked = false
+        }
+    end
+
     def accel(dvx, dvy)
         return if @fuel <= 0 
         deviance = 0
@@ -372,8 +382,8 @@ class Lander
         # shake the craft when damaged
         shake = 0
         shake = (1 - @health.to_f / HEALTH) * 20 if @health < HEALTH
-        
-        @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2
+
+        @image.draw_rot @xpos, @y, 1, @theta + rand(shake) - shake / 2, 0.5, 0.5, 1, 1, @cloaked ? 0x80ffffff : 0xffffffff
         #@image.sdraw_rot @x, @y, 1, @theta + rand(shake) - shake / 2
         @health_meter.draw_rot @xpos, @y - 50, 1, 0
     end
