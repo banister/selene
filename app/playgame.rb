@@ -84,7 +84,7 @@ class PlayGame
     end
 
     def place_turrets
-        10.times { 
+        8.times { 
             @turret_manager.add_turret :x => rand(@map.total_map_width), :y => 100
         }
     end

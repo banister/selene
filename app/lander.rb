@@ -188,7 +188,8 @@ class Lander
     end
 
     def health=(h)
-        @health = h if @health <= 3 * HEALTH
+        @health = h
+        @health = 3 * HEALTH if @health > 3 * HEALTH
         @health_meter.update_health_status(h.to_f / HEALTH)
     end
 
@@ -283,7 +284,8 @@ class Lander
     end
 
     def refuel(v=300)
-        @fuel += v if @fuel <= 3 * FUEL
+        @fuel += v
+        @fuel = 3 * FUEL if @fuel > 3 * FUEL
     end
 
     def refuel_over_time

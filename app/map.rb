@@ -30,7 +30,7 @@ class Map
         @blank_screen = TexPlay.create_blank_image(@window, WIDTH, HEIGHT)
         @moonscape = @@land_textures.random
 
-        6.times { create_screen }
+        8.times { create_screen }
     end
 
     def screen_images
