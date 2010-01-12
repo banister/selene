@@ -29,7 +29,7 @@ class Lander
         @health_meter = HealthMeter.new
         @playgame = playgame
         @cloaked = false
-        @crash_velocity = CRASH_VELOCITY - @playgame.level / 60.0
+        @crash_velocity = 1.5 #CRASH_VELOCITY - @playgame.level / 60.0
         @fuel = FUEL - @playgame.level * 2
 
         # let's put reasonable limits on fuel and crash velocity
