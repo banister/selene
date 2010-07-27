@@ -242,8 +242,8 @@ class Lander
             c1
         }
 
-        debris = TexPlay.create_blank_image(@window, chunk_size, chunk_size)
-        debris.splice @image, 0, 0, :crop => chunk
+        @debris ||= TexPlay.create_blank_image(@window, chunk_size, chunk_size)
+        @debris.splice @image, 0, 0, :crop => chunk
 
         @playgame.objects <<  Particle.new(@window, @x, @y)
 
@@ -255,7 +255,7 @@ class Lander
             
             @playgame.objects << Wreckage.new(@window, @playgame,
                                               @x + dx * start_dist,
-                                              @y + dy * start_dist, debris)
+                                              @y + dy * start_dist, @debris)
         end
     end
 
