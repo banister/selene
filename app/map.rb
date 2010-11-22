@@ -10,7 +10,8 @@ class Map
     @window = window
 
     # background image
-    @@nebula_textures ||= [Gosu::Image.new(@window, "#{MEDIA}/witchhead.png"),
+    @@nebula_textures ||= [
+#                           Gosu::Image.new(@window, "#{MEDIA}/witchhead.png"),
                            Gosu::Image.new(@window, "#{MEDIA}/horsehead.png"),
                           ]
     
@@ -96,7 +97,7 @@ class Map
     # ensure the bezier ends at this point (so next screen can join up nicely)
     image.line_to(points.last.x, points.last.y, :texture => @moonscape)
     
-    #image.bezier [rand(500), 700, rand(100), 800, rand(800), 900, rand(300), 850 ], :closed => true
+#    image.bezier [rand(500), 700, rand(100), 800, rand(800), 900, rand(300), 850 ], :closed => true
     image.fill 300, 760, :texture => @moonscape
     
     puts "..finished drawing!"
