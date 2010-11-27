@@ -28,10 +28,9 @@ class Map
 
 
     @screens = []
-    @blank_screen = TexPlay.create_blank_image(@window, WIDTH, HEIGHT)
     @moonscape = @@land_textures.random
 
-    8.times { create_screen }
+    3.times { create_screen }
   end
 
   def screen_images
@@ -73,11 +72,11 @@ class Map
 
     #image.line WIDTH - 1, 600, WIDTH - 1, HEIGHT - 1, :texture => @moonscape
     #image.line 0, 600, 0, HEIGHT - 1, :texture => @moonscape
-
-    points.first.y = 600
+ 
+    points.first.y = HEIGHT - 168
     points.last.x = WIDTH - 1
 
-    points.last.y = 600
+    points.last.y = HEIGHT - 168
 
     mag = rand(50) + 10
     rough = 2 + rand(20)
@@ -98,7 +97,7 @@ class Map
     image.line_to(points.last.x, points.last.y, :texture => @moonscape)
     
 #    image.bezier [rand(500), 700, rand(100), 800, rand(800), 900, rand(300), 850 ], :closed => true
-    image.fill 300, 760, :texture => @moonscape
+    image.fill WIDTH / 3, HEIGHT - 8, :texture => @moonscape
     
     puts "..finished drawing!"
 
@@ -164,14 +163,14 @@ class Map
       circle rx, y, radius, :color => :alpha, :fill => true
     }
 
-    screen.paint &crater
+    screen.instance_eval &crater
 
     if rx + radius > WIDTH
       rx = rx - WIDTH
-      @screens[s + 1].paint &crater if s < @screens.length - 1
+      @screens[s + 1].instance_eval &crater if s < @screens.length - 1
     elsif rx - radius < 0
       rx = rx + WIDTH
-      @screens[s - 1].paint &crater if s >= 1
+      @screens[s - 1].instance_eval &crater if s >= 1
     end
   end
 end
