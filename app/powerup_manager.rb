@@ -19,7 +19,7 @@ class PowerUpManager
         r = 1.0 / 4
         
         if rand < r
-            return RocketJuice
+            return [RocketJuice, HealthPack].sample
         end
 
         if rand < r
@@ -43,7 +43,7 @@ class PowerUpManager
         end
         
 
-        RocketJuice
+        [RocketJuice, HealthPack].sample
     end
 
     def update
