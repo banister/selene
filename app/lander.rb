@@ -16,6 +16,9 @@ class Lander
   NORMAL_JET_COLOR = [255, 255, 200, 200]
   QUANTUM_JET_COLOR = [255, 120, 120, 255]
   DELTA_THETA = 2
+  MINIMUM_CHUNK_SIZE = 2
+  MAXIMUM_CHUNK_SIZE = 20
+  PLATFORM_HEAL_RATE = 2
 
   def initialize(window, playgame, x, y)
     @xpos = x
@@ -43,7 +46,7 @@ class Lander
 
     init_sounds
 
-    @image = Gosu::Image.new(@window, "#{MEDIA}/lander.png")
+    @image = Gosu::Image.new(@window, "#{MEDIA}/lander.png").cache
     @undamaged_image = @image.dup
     
     set_bounding_box(@image.width, @image.height)
@@ -82,6 +85,10 @@ class Lander
     before(2, :name => :laser_timeout, :preserve => true) do
       @playgame.objects << Bullet.new(@playgame, x, ty, -3, 0)
     end
+  end
+
+  def landed?
+    self.landed
   end
 
   def update
@@ -126,6 +133,12 @@ class Lander
 
     @theta -= DELTA_THETA / 2 if @theta > 0
     @theta += DELTA_THETA / 2 if @theta < 0
+
+    # quantum engine causes health/fuel to recharge over time
+    if is_a?(QuantumEngine::PrecisionControl)
+      self.heal_over_time(0.5) if @health < HEALTH
+      self.refuel_over_time(0.08) if @fuel < FUEL
+    end
   end
 
   # magnitude of velocity vector
@@ -199,14 +212,26 @@ class Lander
     @health = h
     @health = 3 * HEALTH if @health > 3 * HEALTH
     @health_meter.update_health_status(h.to_f / HEALTH)
-
+    health_delta = @health - old_health
+    
     # restore to undamaged ship if health is now full
     if old_health < HEALTH && @health >= HEALTH
       @image.splice @undamaged_image, 0, 0
 
     # otherwise incrementally repair the ship
-    elsif @health < HEALTH
-      chunk_size = 4
+    elsif health_delta > 0 && @health < HEALTH
+      chunk_size = MAXIMUM_CHUNK_SIZE * (health_delta / 50.0)
+      chunk_size = MINIMUM_CHUNK_SIZE if chunk_size < MINIMUM_CHUNK_SIZE
+      chunk_size = MAXIMUM_CHUNK_SIZE if chunk_size > MAXIMUM_CHUNK_SIZE
+
+      # special case for healing platform
+      chunk_size = 4 if health_delta == PLATFORM_HEAL_RATE
+
+      # puts "chunk size #{chunk_size}"
+      # puts "h #{h}"
+      # puts "MAXIMUM_CHUNK_SIZE * (h / 50.0) is #{MAXIMUM_CHUNK_SIZE * (h / 50.0)}"
+      
+      
       x = rand(@image.width - chunk_size)
       y = rand(@image.height - chunk_size)
       chunk = [x, y, x + chunk_size, y + chunk_size]
@@ -220,9 +245,9 @@ class Lander
     self.health += h
   end
 
-  def heal_over_time
+  def heal_over_time(rate=PLATFORM_HEAL_RATE)
     before(0.01, :name => :health_timeout, :preserve => true) {
-      self.health += 2
+      self.health += rate
     }
   end
 
@@ -231,9 +256,9 @@ class Lander
 
     @collide_sound.play(1.0)
 
-    
-    chunk_size = 20 * (damage / 50.0)
-    chunk_size = 20 if chunk_size > 20
+    chunk_size = MAXIMUM_CHUNK_SIZE * (damage / 50.0)
+    chunk_size = MINIMUM_CHUNK_SIZE if chunk_size < 4
+    chunk_size = MAXIMUM_CHUNK_SIZE if chunk_size > 20
 
     # ignore the case for Wreckage
     if !meteor.is_a?(Wreckage)
@@ -322,21 +347,18 @@ class Lander
     @fuel = 3 * FUEL if @fuel > 3 * FUEL
   end
 
-  def refuel_over_time
+  def refuel_over_time(rate=2)
     before(0.01, :name => :refuel_timeout, :preserve => true) {
-      refuel(2)
+      refuel(rate)
     }
   end
 
   def got_quantum_engine
     extend QuantumEngine::PrecisionControl if !self.is_a? QuantumEngine::PrecisionControl
 
-    refuel(1000)
-
     @jet_color = QUANTUM_JET_COLOR
     @has_precision_controls = true
   end
-
 
   def got_cloaking
     @cloaked = true

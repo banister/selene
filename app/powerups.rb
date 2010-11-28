@@ -65,7 +65,7 @@ end
 ## powerups ##
 class RocketJuice < PowerUp
   def configure
-    set_image Gosu::Image.new(@window, "#{MEDIA}/rockjuice.png")
+    set_image Gosu::Image.new(@window, "#{MEDIA}/rockjuice.png", :caching => false)
 
     action { @playgame.lander.refuel(300) }
   end
@@ -73,7 +73,7 @@ end
 
 class HealthPack < PowerUp
   def configure
-    set_image Gosu::Image.new(@window, "#{MEDIA}/health.png")
+    set_image Gosu::Image.new(@window, "#{MEDIA}/health.png", :caching => false)
 
     action { @playgame.lander.heal(300) }
   end
@@ -81,7 +81,7 @@ end
 
 class QuantumEngine < PowerUp
   def configure
-    set_image Gosu::Image.new(@window, "#{MEDIA}/quantum.png")
+    set_image Gosu::Image.new(@window, "#{MEDIA}/quantum.png", :caching => false)
 
     action { @playgame.lander.got_quantum_engine }
   end
@@ -101,14 +101,14 @@ end
 
 class Shield < PowerUp
   def configure
-    set_image Gosu::Image.new(@window, "#{MEDIA}/shield.png")
+    set_image Gosu::Image.new(@window, "#{MEDIA}/shield.png", :caching => false)
     action { @playgame.lander.got_shield }
   end
 end
 
 class Freeze < PowerUp
   def configure
-    set_image Gosu::Image.new(@window, "#{MEDIA}/freeze.png")
+    set_image Gosu::Image.new(@window, "#{MEDIA}/freeze.png", :caching => false)
     set_pickup_sound Gosu::Sample.new(@window, "#{MEDIA}/freeze.ogg")
     action { @playgame.freeze_movement }
   end
@@ -116,14 +116,14 @@ end
 
 class Cloaking < PowerUp
   def configure
-    set_image Gosu::Image.new(@window, "#{MEDIA}/invisible.png")
+    set_image Gosu::Image.new(@window, "#{MEDIA}/invisible.png", :caching => false)
     action { @playgame.lander.got_cloaking }
   end
 end
 
 class Flame < PowerUp
   def configure
-    set_image Gosu::Image.new(Win, "#{MEDIA}/flame.png")
+    set_image Gosu::Image.new(Win, "#{MEDIA}/flame.png", :caching => false)
     action { @playgame.lander.extend Laser if !@playgame.lander.is_a?(Flame::Laser) }
   end
 

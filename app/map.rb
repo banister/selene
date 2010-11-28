@@ -15,20 +15,20 @@ class Map
                            Gosu::Image.new(@window, "#{MEDIA}/horsehead.png"),
                           ]
     
-    @nebula = @@nebula_textures.random
+    @nebula = @@nebula_textures.sample
     @nebula_theta = 0
 
-    @@land_textures ||= [Gosu::Image.new(@window, "#{MEDIA}/crack2.png"),
-                         Gosu::Image.new(@window, "#{MEDIA}/snow.png"),
-                         Gosu::Image.new(@window, "#{MEDIA}/mud1.png"),
-                         Gosu::Image.new(@window, "#{MEDIA}/crack3.png"),
-                         Gosu::Image.new(@window, "#{MEDIA}/sand1.png"),
-                         Gosu::Image.new(@window, "#{MEDIA}/rough1.png"),
-                        ]
+    @@land_textures ||= [Gosu::Image.new(@window, "#{MEDIA}/crack2.png", true),
+                         Gosu::Image.new(@window, "#{MEDIA}/snow.png", true),
+                         Gosu::Image.new(@window, "#{MEDIA}/mud1.png", true),
+                         Gosu::Image.new(@window, "#{MEDIA}/crack3.png", true),
+                         Gosu::Image.new(@window, "#{MEDIA}/sand1.png", true),
+                         Gosu::Image.new(@window, "#{MEDIA}/rough1.png", true),
+                        ].map(&:cache)
 
 
     @screens = []
-    @moonscape = @@land_textures.random
+    @moonscape = @@land_textures.sample
 
     3.times { create_screen }
   end
@@ -124,16 +124,6 @@ class Map
     screen.get_pixel(rx, y) && screen.get_pixel(rx, y)[3] != 0
   end
 
-  def white_out
-    color = Gosu::Color.new(255, 255, 255, 255)
-    window = Win
-    Win.draw_quad(0, 0, color,
-                  window.width, 0, color,
-                  window.width, window.height, color,
-                  0, window.height, color, 0, :default)
-    
-  end
-  
   def draw
     @nebula_theta += 0.015
     @nebula.draw_rot(512, 384, 0, @nebula_theta)

@@ -1,26 +1,11 @@
+dlext = Config::CONFIG['DLEXT']
+direc = File.dirname(__FILE__)
+
 require 'rake/clean'
+require 'rake/gempackagetask'
 
-$dlext = Config::CONFIG['DLEXT']
+CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
+CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o",
+              "ext/**/*~", "ext/**/*#*", "ext/**/*.obj",
+              "ext/**/*.def", "ext/**/*.pdb", "**/*_flymake*.*", "**/*_flymake")
 
-CLEAN.include("**/*.#{$dlext}", "**/*.o", "**/#*.*", "**/.#*.*")
-CLOBBER.include("**/*~", "**/*#*", "**/*.log")
-
-task :default => [:texplay]
-
-TEXPLAY = "/home/john/ruby/myextensions/texplay2/lib"
-desc "update selene's version of texplay"
-task :texplay => ["lib/texplay.rb", "lib/texplay-contrib.rb", "lib/ctexplay.#{$dlext}"] do
-    puts "...done!"
-end
-
-file "lib/texplay.rb" => "#{TEXPLAY}/texplay.rb" do |t|
-    cp t.prerequisites.first, t.name, :verbose => true
-end
-
-file "lib/texplay-contrib.rb" => "#{TEXPLAY}/texplay-contrib.rb" do |t|
-    cp t.prerequisites.first, t.name, :verbose => true
-end
-
-file "lib/ctexplay.#{$dlext}" => "#{TEXPLAY}/ctexplay.#{$dlext}" do |t|
-    cp t.prerequisites.first, t.name, :verbose => true
-end

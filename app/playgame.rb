@@ -45,7 +45,8 @@ class PlayGame
         @difficulty = Difficulty.new(self)
         @meteor_manager = MeteorManager.new(@window, self)
         @turret_manager = TurretManager.new(@window, self)
-        @powerup_manager = PowerUpManager.new(@window, self)
+
+      @powerup_manager = PowerUpManager.new(@window, self)
         @platform_manager = PlatformManager.new(@window, self)
         @astronaut_manager = AstronautManager.new(@window, self)
 
@@ -135,18 +136,18 @@ class PlayGame
                    0xffffff00)
         
 
-        @font.draw("fuel: #{@lander.fuel}", 840, 10, 3, 1.0, 1.0,
+        @font.draw("fuel: #{@lander.fuel.to_int}", 840, 10, 3, 1.0, 1.0,
                    @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)
-        @font.draw("health: #{@lander.health}", 840, 60, 3, 1.0, 1.0, 0xffffff00)
-        @font.draw("velocity: #{@lander.vel.round_to(3) * 10}", 100, 10, 3,
+      @font.draw("health: #{@lander.health.to_int}", 840, 60, 3, 1.0, 1.0, 0xffffff00)
+        @font.draw("velocity: %0.2f" %(@lander.vel * 10), 100, 10, 3,
                    1.0, 1.0, 0xffffff00)
-        @font.draw("crash velocity: #{@lander.crash_velocity.round_to(3) * 10}", 100, 30, 3,
+        @font.draw("crash velocity: %0.2f" % (@lander.crash_velocity.round_to(3) * 10), 100, 30, 3,
                    1.0, 1.0, 0xffffff00)
         @font.draw("wind y: #{@wind[1].round_to(3) * 10}", 100, 50, 3, 1.0, 1.0, 0xffffff00)
         @font.draw("wind x: #{@wind[0].round_to(3) * 10}", 100, 70, 3, 1.0, 1.0, 0xffffff00)
         
         @font.draw("Precision Controls: #{@lander.da.round_to(5) * 10}", 100, 90, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_precision_controls
-        @font.draw("Shield: #{@lander.shield_remaining.round_to(3)}", 100, 110, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_shield
+        @font.draw("Shield: #{@lander.shield_remaining.to_int}", 100, 110, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_shield
     end
 
     def name
