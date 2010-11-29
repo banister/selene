@@ -22,7 +22,7 @@ class Astronaut
     end
 
     def set_into_place
-        while !@playgame.map.solid?(self.x, self.y + (self.height))
+        while !@playgame.map.solid?(self.x, self.y + (self.height / 2))
             break if self.y > Map::HEIGHT
             self.y += 1
         end

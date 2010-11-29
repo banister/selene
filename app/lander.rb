@@ -19,11 +19,27 @@ class Lander
   MINIMUM_CHUNK_SIZE = 2
   MAXIMUM_CHUNK_SIZE = 20
   PLATFORM_HEAL_RATE = 2
+  START_X = 90 + Map::WIDTH / 2
+  START_Y = Map::HEIGHT / 2 - 184
 
-  def initialize(window, playgame, x, y)
-    @xpos = x
-    @ypos = y
-    @x, @y = x, y
+  def reset
+    @xpos = @x = START_X
+    @ypos = @y = START_Y
+    @vx = @vy = 0
+    @da = 0.1
+    self.health = HEALTH
+    @fuel = FUEL - @playgame.level * 2
+    @cloaked = false
+    self.landed = false
+    @active = true
+    @jet_color = NORMAL_JET_COLOR
+    @theta = 0
+  end
+  
+  def initialize(window, playgame)
+    @xpos = @x = START_X
+    @ypos = @y = START_Y
+
     @vx = @vy = 0
     @da = 0.1
     @window = window
