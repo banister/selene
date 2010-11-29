@@ -2,6 +2,7 @@ require 'rubygems'
 require 'texplay'
 require 'common'
 require 'matrix'
+require 'difficulty'
 require 'map'
 require 'health_meter'
 require 'powerups'
@@ -17,7 +18,6 @@ require 'astronaut_manager'
 require 'bullet'
 require 'lander'
 require 'particle'
-require 'difficulty'
 require 'playgame'
 require 'getready'
 
@@ -29,7 +29,7 @@ class W < Gosu::Window
     super(Map::WIDTH, Map::HEIGHT, fullscreen)
     
     # starting level
-    @level = 10
+    @level = 17
     @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
     @state = GetReady.new(self, @level)
     @frame_counter = FPSCounter.new

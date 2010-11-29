@@ -54,7 +54,7 @@ class Turret
     @playgame.lander.impulse(0, -0.2) if intersect?(@playgame.lander)
 
     track_target
-    correct_barrel
+#    correct_barrel
   end
 
   def target_vector
@@ -91,7 +91,7 @@ class Turret
   def shoot
     before(2, :name => :bullet_timeout, :preserve => true) do
       @playgame.objects << Bullet.new(@playgame, barrel_tip[0], barrel_tip[1], 2, @barrel_theta)
-      #            recoil
+#      recoil
     end        
   end
 
@@ -105,8 +105,8 @@ class Turret
   def correct_barrel
     ty = @y - @image.height / 2 + 4 
     recoil_vector = Vector[barrel_tip[0] - @x, barrel_tip[1] - ty].normalize
-    #       @dbx += recoil_vector[0].sgn * 0.12  
-    #      @dby += recoil_vector[1].sgn * 0.12
+    @dbx += recoil_vector[0].sgn * 0.12  
+    @dby += recoil_vector[1].sgn * 0.12
   end
 
   def object_hit(obj, damage)

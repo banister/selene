@@ -13,6 +13,7 @@ class PlayGame
   AstronautCount = 5
 
   def initialize(window, level)
+    Difficulty.set_playgame(self)
     @window = window
     @level_complete = false
     @level_fail = false
@@ -26,23 +27,12 @@ class PlayGame
 
     @wind = []
 
-    @wind[0] = rand * Wind_Velocity - Wind_Velocity / 2
-    @wind[1] = rand * Wind_Velocity - Wind_Velocity / 2
-
-    if @level > 20 then
-      factor = 1 + 0.2 * (@level - 20)
-
-      factor = 8 if factor > 8
-      
-      @wind[0] *= factor
-      @wind[1] *= factor
-    end
+    @wind[0], @wind[1] = Difficulty.wind_velocity
 
     @objects = []
     @lander = Lander.new(@window, self)
     Win.screen_x = 0
 
-    @difficulty = Difficulty.new(self)
     @meteor_manager = MeteorManager.new(@window, self)
     @turret_manager = TurretManager.new(@window, self)
 
@@ -69,30 +59,41 @@ class PlayGame
   end
 
   def place_platforms
-    7.times { 
-      @platform_manager.add_platform :x => rand(@map.total_map_width), :y => 100
-    }
+    num_red, num_green, num_blue, num_yellow = Difficulty.num_platforms
+    
     # Red platform
-    @platform_manager.add_platform :type => RedPlatform,
-    :x => rand(@map.total_map_width), :y => 100
+    num_red.times do
+      @platform_manager.add_platform :type => RedPlatform,
+      :x => rand(@map.total_map_width), :y => 100
+    end
 
     # Green platform
-    @platform_manager.add_platform :type => GreenPlatform,
-    :x => rand(@map.total_map_width), :y => 100
-
+    num_green.times do
+      @platform_manager.add_platform :type => GreenPlatform,
+      :x => rand(@map.total_map_width), :y => 100
+    end
+    
     # Blue platform
-    @platform_manager.add_platform :type => BluePlatform,
-    :x => rand(@map.total_map_width), :y => 100
+    num_blue.times do
+      @platform_manager.add_platform :type => BluePlatform,
+      :x => rand(@map.total_map_width), :y => 100
+    end
+
+    # Yellow platform
+    num_yellow.times do
+      @platform_manager.add_platform :type => YellowPlatform,
+      :x => rand(@map.total_map_width), :y => 100
+    end
   end
 
   def place_astronauts
-    AstronautCount.times { 
+    Difficulty.num_astronauts.times { 
       @astronaut_manager.add_astronaut :x => rand(@map.total_map_width), :y => 100
     }
   end
 
   def place_turrets
-    8.times { 
+    Difficulty.num_turrets.times { 
       @turret_manager.add_turret :x => rand(@map.total_map_width), :y => 100
     }
   end
@@ -116,7 +117,7 @@ class PlayGame
     @lander.update
     @objects.reject! { |m| m.update == false }
 
-    if @lander.safe_astronaut_count == AstronautCount then
+    if @lander.safe_astronaut_count == Difficulty.num_astronauts 
       @triumph_sound.play(1.0)
       @level_complete = true
     elsif !@lander.active then

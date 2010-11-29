@@ -1,4 +1,3 @@
-
 class Map
   WIDTH = 1020
   HEIGHT = 768
@@ -26,11 +25,9 @@ class Map
                          Gosu::Image.new(@window, "#{MEDIA}/rough1.png", true),
                         ].map(&:cache)
 
-
     @screens = []
     @moonscape = @@land_textures.sample
-
-    3.times { create_screen }
+    Difficulty.num_screens.times { create_screen }
   end
 
   def screen_images
@@ -41,19 +38,15 @@ class Map
     @screens.length * Map::WIDTH
   end
 
-  def create_screen_at(pos)
-    if !@screens[pos] 
-      create_screen(:right) until @screens[pos]
-    end
+  def num_screens
+    @screens.length
   end
 
   def create_screen(position=:right)
-
     puts "creating a screen"
     
     # base image for our lunar landscape
     image = TexPlay::create_blank_image(@window, WIDTH, HEIGHT)
-    #image.rect 0,0, image.width - 1, image.height - 1, :color => :rand
 
     puts "..created blank!"
     puts "..starting drawing!"
@@ -70,9 +63,6 @@ class Map
       points << p
     }
 
-    #image.line WIDTH - 1, 600, WIDTH - 1, HEIGHT - 1, :texture => @moonscape
-    #image.line 0, 600, 0, HEIGHT - 1, :texture => @moonscape
- 
     points.first.y = HEIGHT - 168
     points.last.x = WIDTH - 1
 
@@ -95,10 +85,7 @@ class Map
 
     # ensure the bezier ends at this point (so next screen can join up nicely)
     image.line_to(points.last.x, points.last.y, :texture => @moonscape)
-    
-#    image.bezier [rand(500), 700, rand(100), 800, rand(800), 900, rand(300), 850 ], :closed => true
     image.fill WIDTH / 3, HEIGHT - 8, :texture => @moonscape
-    
     puts "..finished drawing!"
 
     case position
@@ -107,8 +94,6 @@ class Map
     when :right
       @screens.push image
     end
-
-
     puts "...finished creating screen!"
   end
 
@@ -127,7 +112,6 @@ class Map
   def draw
     @nebula_theta += 0.015
     @nebula.draw_rot(512, 384, 0, @nebula_theta)
-    #white_out
 
     #         MELTLOL
     #          x = rand(current_screen.width)
@@ -136,19 +120,15 @@ class Map
     @screens.each_with_index { |v, i|
       v.sdraw(i * (WIDTH - 1), 0, 1)
     }
-    #current_screen_image.draw(0, 0, 1)
   end
-
 
   def blast(x, y, radius)
     s = (x.to_i / WIDTH) 
     rx = x.to_i % WIDTH
     screen = @screens[s]
-    
 
     # draw a shadow
-    crater = proc {         #puts "solid check, matched against screen #{s}"
-
+    crater = proc {
       circle rx, y, radius + 10,  :fill => true, :shadow => true
       circle rx, y, radius, :color => :alpha, :fill => true
     }
