@@ -116,7 +116,7 @@ class Difficulty
       when (20..30)
         5
       when (30..Float::INFINITY)
-        (5 + (@playgame.level - 30) * 0.4).to_int
+        (5 + (@playgame.level - 30) * 0.1).to_int
       else
         level_error
       end
