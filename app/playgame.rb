@@ -5,12 +5,10 @@ class PlayGame
   attr_reader :map, :lander, :platform_manager, :meteor_manager, :turret_manager
   attr_reader :level, :wind, :difficulty, :powerup_manager
   
-  
   Gravity = 0.002
   LandGravity = 0.1
   Wind_Velocity = 0.005
   FREEZE_MOVEMENT_TIMEOUT = 20
-  AstronautCount = 5
 
   def initialize(window, level)
     Difficulty.set_playgame(self)
@@ -25,9 +23,8 @@ class PlayGame
     @triumph_sound = Gosu::Sample.new(@window, "#{MEDIA}/triumph.ogg")
     @crash_sound = Gosu::Sample.new(@window, "#{MEDIA}/smash.ogg")
 
-    @wind = []
-
-    @wind[0], @wind[1] = Difficulty.wind_velocity
+    @wind = Array.new(2)
+    @wind.first, @wind.last = Difficulty.wind_velocity
 
     @objects = []
     @lander = Lander.new(@window, self)
@@ -40,11 +37,7 @@ class PlayGame
     @platform_manager = PlatformManager.new(@window, self)
     @astronaut_manager = AstronautManager.new(@window, self)
 
-    @objects << @astronaut_manager
-    @objects << @platform_manager
-    @objects << @meteor_manager
-    @objects << @turret_manager
-    @objects << @powerup_manager
+    @objects.push @astronaut_manager, @platform_manager, @meteor_manager, @turret_manager, @powerup_manager
 
     place_platforms
     place_astronauts
@@ -129,14 +122,12 @@ class PlayGame
   def draw
     @map.draw
     @lander.draw
-    @objects.each { |m| m.draw }
+    @objects.each(&:draw)
 
     @font.draw("astronaut count: #{@lander.astronaut_count}", 340, 10, 3, 1.0, 1.0,
                0xffffff00)
-
     @font.draw("astronauts home: #{@lander.safe_astronaut_count}", 640, 10, 3, 1.0, 1.0,
                0xffffff00)
-    
     @font.draw("fuel: #{@lander.fuel.to_int}", 840, 10, 3, 1.0, 1.0,
                @lander.fuel > 20 ? 0xffffff00 : 0xffff0000)
     @font.draw("health: #{@lander.health.to_int}", 840, 60, 3, 1.0, 1.0, 0xffffff00)
@@ -146,7 +137,6 @@ class PlayGame
                1.0, 1.0, 0xffffff00)
     @font.draw("wind y: #{@wind[1].round_to(3) * 10}", 100, 50, 3, 1.0, 1.0, 0xffffff00)
     @font.draw("wind x: #{@wind[0].round_to(3) * 10}", 100, 70, 3, 1.0, 1.0, 0xffffff00)
-    
     @font.draw("Precision Controls: #{@lander.da.round_to(5) * 10}", 100, 90, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_precision_controls
     @font.draw("Shield: #{@lander.shield_remaining.to_int}", 100, 110, 3, 1.0, 1.0, 0xff00ff00) if @lander.has_shield
   end
