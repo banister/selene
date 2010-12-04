@@ -55,7 +55,8 @@ class W < Gosu::Window
     elsif @state.level_fail? || button_down?(Gosu::KbS)
       @playgame = @state
       @state = GetReady.new(self, @level, :failure)
-
+    elsif button_down?(Gosu::KbR)
+      @state = GetReady.new(self, @level, :restart)
     elsif button_down?(Gosu::KbEscape)
       exit
     end

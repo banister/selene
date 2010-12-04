@@ -17,7 +17,7 @@ class Lander
   QUANTUM_JET_COLOR = [255, 120, 120, 255]
   DELTA_THETA = 2
   MINIMUM_CHUNK_SIZE = 2
-  MAXIMUM_CHUNK_SIZE = 40
+  MAXIMUM_CHUNK_SIZE = 20
   PLATFORM_HEAL_RATE = 2
   START_X = 90 + Map::WIDTH / 2
   START_Y = Map::HEIGHT / 2 - 184
@@ -32,8 +32,10 @@ class Lander
     @cloaked = false
     self.landed = false
     @active = true
+    @has_shield = false
     @jet_color = NORMAL_JET_COLOR
     @theta = 0
+    self
   end
   
   def initialize(window, playgame)
@@ -283,8 +285,8 @@ class Lander
     @collide_sound.play(1.0)
 
     chunk_size = MAXIMUM_CHUNK_SIZE * (damage / 50.0)
-    chunk_size = MINIMUM_CHUNK_SIZE if chunk_size < 4
-    chunk_size = MAXIMUM_CHUNK_SIZE if chunk_size > 20
+    chunk_size = MINIMUM_CHUNK_SIZE if chunk_size < MINIMUM_CHUNK_SIZE
+    chunk_size = MAXIMUM_CHUNK_SIZE if chunk_size > MAXIMUM_CHUNK_SIZE
 
     # ignore the case for Wreckage
     if !meteor.is_a?(Wreckage)

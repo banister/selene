@@ -14,6 +14,8 @@ class GetReady
       @font.draw("Well done!", 290, 200, 3, 5.0, 5.0, 0xff00dd00)
     elsif @applaud == :failure
       @font.draw("Too bad!", 290, 200, 3, 5.0, 5.0, 0xffdd0000)
+    elsif @applaud == :restart
+      @font.draw("Restart!", 290, 200, 3, 5.0, 5.0, 0xff0000dd)
     end
     @font.draw("Get Ready for level #{@level}!", 50, 300, 3, 5.0, 5.0, 0xffffff00)
     @font.draw("(press space)", 270, 400, 3, 4.0, 4.0, 0xdddddddd)
