@@ -24,7 +24,7 @@ class PlayGame
     @crash_sound = Gosu::Sample.new(@window, "#{MEDIA}/smash.ogg")
 
     @wind = Array.new(2)
-    @wind.first, @wind.last = Difficulty.wind_velocity
+    @wind[0], @wind[1] = Difficulty.wind_velocity
 
     @objects = []
     @lander = Lander.new(@window, self)

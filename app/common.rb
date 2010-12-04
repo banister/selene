@@ -65,6 +65,10 @@ class Array
   def random
     self[rand(size)]
   end
+
+  def sample
+    self[rand(size)]
+  end if !method_defined?(:sample)
 end
 ## end monkey patches
 
