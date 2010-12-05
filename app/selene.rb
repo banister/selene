@@ -29,7 +29,7 @@ class W < Gosu::Window
     super(Map::WIDTH, Map::HEIGHT, fullscreen)
     
     # starting level
-    @level = 17
+    @level = 5
     @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
     @state = GetReady.new(self, @level)
     @frame_counter = FPSCounter.new

@@ -9,6 +9,9 @@ class GetReady
     @font = Gosu::Font.new(@window, Gosu::default_font_name, 20)
   end
 
+  def reset
+  end
+
   def draw
     if @applaud == :success
       @font.draw("Well done!", 290, 200, 3, 5.0, 5.0, 0xff00dd00)
