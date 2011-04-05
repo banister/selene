@@ -1,6 +1,6 @@
 class Map
-  WIDTH = 1020
-  HEIGHT = 768
+  WIDTH = 1000
+  HEIGHT = 500
 
   attr_accessor :current_screen, :current_screen_image
   attr_reader :init_screen
@@ -56,17 +56,17 @@ class Map
     (0..WIDTH + 120).step(90) {  |x|
       p = Point.new
       p.x = x
-      p.y = HEIGHT - rand * 600
+      p.y = HEIGHT - rand * 300
       if p.y >= HEIGHT - 1 
         p.y = HEIGHT - 1
       end
       points << p
     }
 
-    points.first.y = HEIGHT - 168
+    points.first.y = HEIGHT - 268
     points.last.x = WIDTH - 1
 
-    points.last.y = HEIGHT - 168
+    points.last.y = HEIGHT - 268
 
     mag = rand(50) + 10
     rough = 2 + rand(20)
