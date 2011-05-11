@@ -1,3 +1,4 @@
+require 'pry'
 require 'rubygems'
 require 'texplay'
 require 'common'
@@ -57,6 +58,8 @@ class W < Gosu::Window
       @state = GetReady.new(self, @level, :failure)
     elsif button_down?(Gosu::KbR)
       @state = GetReady.new(self, @level, :restart)
+    elsif button_down?(Gosu::KbP)
+      binding.pry
     elsif button_down?(Gosu::KbEscape)
       exit
     end

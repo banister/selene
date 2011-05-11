@@ -1,12 +1,12 @@
 class Lander
   include BoundingBox
   include Tasks
-  
+
   attr_accessor :landed, :active
   attr_reader :fuel, :width, :height, :vel, :da, :x, :y, :vx, :vy
   attr_reader :astronaut_count, :safe_astronaut_count, :cloaked
   attr_reader :has_shield, :crash_velocity, :health, :has_precision_controls
-  
+
   CRASH_VELOCITY = 0.6
   FUEL = 1000
   HEALTH = 1000
@@ -37,7 +37,7 @@ class Lander
     @theta = 0
     self
   end
-  
+
   def initialize(window, playgame)
     @xpos = @x = START_X
     @ypos = @y = START_Y
@@ -59,7 +59,7 @@ class Lander
 
     self.landed = false
     @active = true
-    
+
     @jet_color = NORMAL_JET_COLOR
 
     init_sounds
@@ -75,7 +75,7 @@ class Lander
     @debris.splice @image, 0, 0, :crop => chunk
 
     @undamaged_image = @image.dup
-    
+
     set_bounding_box(@image.width, @image.height)
 
     # TEMPORARY SOLUTION !!
@@ -109,7 +109,7 @@ class Lander
 
   def laser_fire
     ty = @playgame.lander.y + @playgame.lander.height / 2 + 4
-    before(2, :name => :laser_timeout, :preserve => true) do
+    before(1.01, :name => :laser_timeout, :preserve => true) do
       @playgame.objects << Bullet.new(@playgame, x, ty, -3, 0)
     end
   end
@@ -134,17 +134,17 @@ class Lander
     else
       self.x += @vx
       Win.screen_x += @vx
-      
+
       self.y += @vy
       @vy += PlayGame::Gravity
-      
+
       if !@has_precision_controls
         @vx += @playgame.wind[0]
         @vy += @playgame.wind[1]
       end
       self.landed = false
     end
-    
+
     if terrain_touch_down?
       if vel > @crash_velocity then
         @active = false
@@ -193,20 +193,20 @@ class Lander
     after(2, :name => :astronaut_unload_timeout, :preserve => true) {
       unload_astronaut
     }
-  end    
+  end
 
   def middle_foot
     [@x, @y + @height / 2]
   end
-  
+
   def left_foot
-    [@x + @width / 2, @y + @height / 2]                
+    [@x + @width / 2, @y + @height / 2]
   end
 
   def right_foot
-    [@x - @width / 2, @y + @height / 2]        
+    [@x - @width / 2, @y + @height / 2]
   end
-  
+
   def touch_down?
     terrain_touch_down? || platform_touch_down?
   end
@@ -240,7 +240,7 @@ class Lander
     @health = 3 * HEALTH if @health > 3 * HEALTH
     @health_meter.update_health_status(h.to_f / HEALTH)
     health_delta = @health - old_health
-    
+
     # restore to undamaged ship if health is now full
     if old_health < HEALTH && @health >= HEALTH
       @image.splice @undamaged_image, 0, 0
@@ -257,8 +257,8 @@ class Lander
       # puts "chunk size #{chunk_size}"
       # puts "health_delta #{health_delta}"
       # puts "MAXIMUM_CHUNK_SIZE * (health_delta / 50.0) is #{MAXIMUM_CHUNK_SIZE * (h / 50.0)}"
-      
-      
+
+
       x = rand(@image.width - chunk_size)
       y = rand(@image.height - chunk_size)
       chunk = [x, y, x + chunk_size, y + chunk_size]
@@ -267,7 +267,7 @@ class Lander
       @image.splice @undamaged_image, x, y, :crop => chunk
     end
   end
-  
+
 
   def heal(h=300)
     self.health += h
@@ -308,7 +308,7 @@ class Lander
         @vy += meteor.vy * impulse_factor
       end
     end
-    
+
     if @health <= HEALTH
       x = rand(@image.width - chunk_size)
       y = rand(@image.height - chunk_size)
@@ -320,7 +320,7 @@ class Lander
       :crop => chunk,
       :color_control => proc { |c, c1|
         c1[0] /= 1.7
-        c1[1] /= 2.1 
+        c1[1] /= 2.1
         c1[2] /= 2.1
 
         c1
@@ -334,7 +334,7 @@ class Lander
       angle = 2 * Math::PI * rand
       dx = Math::cos(angle)
       dy = Math::sin(angle)
-      
+
       @playgame.objects << Wreckage.new(@window, @playgame,
                                         @x + dx * start_dist,
                                         @y + dy * start_dist, @debris)
@@ -343,7 +343,7 @@ class Lander
 
   def got_shield(timeout = SHIELD_TIMEOUT)
     @has_shield = true
-    
+
     after(timeout, :name => :shield_timeout) { @has_shield = false }
   end
 
@@ -391,13 +391,13 @@ class Lander
   end
 
   def accel(dvx, dvy)
-    return if @fuel <= 0 
+    return if @fuel <= 0
     deviance = 0
     deviance = (1 - (@health / HEALTH.to_f)) / 4.0 if @health < HEALTH
 
-    @vx += dvx + deviance / 3 * rand 
-    @vy += dvy + deviance / 3 * rand 
-    
+    @vx += dvx + deviance / 3 * rand
+    @vy += dvy + deviance / 3 * rand
+
     @fuel_sound.play(0.05) if @fuel <= 100
     @fuel -= 1 * (@da * 10)
 
@@ -413,7 +413,7 @@ class Lander
       if @theta > -MAX_CAREEN_ANGLE && @theta < MAX_CAREEN_ANGLE
         @theta += DELTA_THETA * sgn
       end
-      
+
     elsif dvy.sgn != 0
       @jet_sound.play(0.04)
       sgn = dvy.sgn
@@ -429,7 +429,7 @@ class Lander
   def move_left
     accel(-@da, 0)
   end
-  
+
   def move_right
     accel(@da, 0)
   end
@@ -441,7 +441,7 @@ class Lander
   def move_down
     accel(0, @da)
   end
-  
+
   def draw
     # shake the craft when damaged
     shake = 0
