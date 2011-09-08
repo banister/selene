@@ -20,6 +20,7 @@ require 'lander'
 require 'particle'
 require 'playgame'
 require 'getready'
+require 'pry'
 
 class W < Gosu::Window
   attr_accessor :screen_x, :screen_y
@@ -55,6 +56,8 @@ class W < Gosu::Window
     elsif @state.level_fail? || button_down?(Gosu::KbS)
       @playgame = @state
       @state = GetReady.new(self, @level, :failure)
+    elsif button_down?(Gosu::KbP)
+      binding.pry
     elsif button_down?(Gosu::KbR)
       @state = GetReady.new(self, @level, :restart)
     elsif button_down?(Gosu::KbEscape)
