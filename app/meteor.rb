@@ -1,13 +1,13 @@
 class Meteor
-  include BoundingBox 
-  
+  include BoundingBox
+
   attr_accessor :active
   attr_reader :vx, :vy, :x, :y
-  
+
   def initialize(window, playgame, x, y, image = nil)
     @x, @y = x, y
     @vx = 4 * rand - 2
-    @vy = 2 * rand 
+    @vy = 2 * rand
     @theta = 360 * rand
     @dtheta = 5 * rand * (rand(2) == 0 ? -1 : 1)
     @window = window
@@ -16,7 +16,7 @@ class Meteor
     @impulse_factor = 1
 
     @collide_sound = Gosu::Sample.new(@window, "#{MEDIA}/collide.ogg")
-    
+
     @image = image
 
     config
@@ -24,12 +24,12 @@ class Meteor
     set_bounding_box(@image.width, @image.height)
   end
 
-  # call back 
+  # call back
   def object_hit; end
 
   def update
     return false if !@active
-    
+
     if !@playgame.is_movement_frozen?
       @x += @vx
       @y += @vy
@@ -39,14 +39,14 @@ class Meteor
 
     if @playgame.map.solid?(x, y) then
       @playgame.map.blast(x, y, @blast_size)
-      @collide_sound.play(1.0)
+#      @collide_sound.play(1.0)
       smoke_cloud
-      
+
       false
     elsif @playgame.lander.shield_intersect?(self) then
       @playgame.lander.shield_hit(self)
 
-      
+
       false
     elsif intersect?(@playgame.lander) then
       @playgame.lander.object_hit(self, @blast_damage, @impulse_factor)
@@ -99,7 +99,7 @@ class LargeMeteor < Meteor
   def self.image
     @image ||= Gosu::Image.new(Win, "#{MEDIA}/roidbig.png")
   end
-  
+
   def config
     @image = LargeMeteor.image
     @blast_size = 70

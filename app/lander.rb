@@ -109,7 +109,7 @@ class Lander
 
   def laser_fire
     ty = @playgame.lander.y + @playgame.lander.height / 2 + 4
-    before(1.01, :name => :laser_timeout, :preserve => true) do
+    before(0.01, :name => :laser_timeout, :preserve => true) do
       @playgame.objects << Bullet.new(@playgame, x, ty, -3, 0)
     end
   end
@@ -282,7 +282,7 @@ class Lander
   def object_hit(meteor, damage, impulse_factor = 1)
     self.health -= damage
 
-    @collide_sound.play(1.0)
+#    @collide_sound.play(1.0)
 
     chunk_size = MAXIMUM_CHUNK_SIZE * (damage / 50.0)
     chunk_size = MINIMUM_CHUNK_SIZE if chunk_size < MINIMUM_CHUNK_SIZE
@@ -402,7 +402,7 @@ class Lander
     @fuel -= 1 * (@da * 10)
 
     if dvx.sgn != 0 && !self.landed?
-      @jet_sound.play(0.04)
+#      @jet_sound.play(0.04)
       sgn = dvx.sgn
       direc = sgn > 0 ? :left : :right
       @playgame.objects << Particle.new(@window, @x + 25 * -sgn , @y - 16,
@@ -415,7 +415,7 @@ class Lander
       end
 
     elsif dvy.sgn != 0
-      @jet_sound.play(0.04)
+#      @jet_sound.play(0.04)
       sgn = dvy.sgn
       direc = sgn > 0 ? :up : :down
       @playgame.objects << Particle.new(@window, @x , @y + 20 * -sgn,

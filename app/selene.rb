@@ -1,4 +1,3 @@
-require 'pry'
 require 'rubygems'
 require 'texplay'
 require 'common'
@@ -21,14 +20,16 @@ require 'lander'
 require 'particle'
 require 'playgame'
 require 'getready'
+require 'pry'
+require 'pry-remote-em'
+require 'pry-remote-em/server'
 
 class W < Gosu::Window
   attr_accessor :screen_x, :screen_y
-  
+
   def initialize
-    fullscreen = ARGV[0] ? true : false
-    super(Map::WIDTH, Map::HEIGHT, fullscreen)
-    
+    super(Map::WIDTH, Map::HEIGHT, false)
+
     # starting level
     @level = 5
     @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
@@ -40,7 +41,7 @@ class W < Gosu::Window
   def update
 
     # change from 'Get Ready' to playing state
-    if (@state.name == :getready) && button_down?(Gosu::KbSpace) 
+    if (@state.name == :getready) && button_down?(Gosu::KbSpace)
       if @state.applaud == :failure
         @state = @playgame.tap { |v| v.reset }
       else
@@ -59,7 +60,13 @@ class W < Gosu::Window
     elsif button_down?(Gosu::KbR)
       @state = GetReady.new(self, @level, :restart)
     elsif button_down?(Gosu::KbP)
-      binding.pry
+      Thread.new {
+        EM.run {
+          binding.remote_pry_em
+        }
+      }
+      @u ||= 0
+      @u += 1
     elsif button_down?(Gosu::KbEscape)
       exit
     end
@@ -67,7 +74,7 @@ class W < Gosu::Window
     @state.update
     @frame_counter.register_tick
   end
-  
+
   def draw
     @state.draw
     @font.draw("FPS: #{@frame_counter.fps}",
